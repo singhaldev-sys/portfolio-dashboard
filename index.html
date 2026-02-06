@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Comparison Dashboard - Fincart</title>
+
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --color-white: #ffffff;
+            --color-black: #000000;
+            --color-blue-50: #f0f5ff;
+            --color-blue-100: #e3ebff;
+            --color-blue-200: #c7d7fe;
+            --color-blue-300: #a5bbff;
+            --color-blue-400: #7e99ff;
+            --color-blue-500: #5775cd;
+            --color-blue-600: #3d5aaf;
+            --color-blue-700: #2d4691;
+            --color-yellow-50: #fffef0;
+            --color-yellow-100: #fffacd;
+            --color-yellow-200: #fff59d;
+            --color-yellow-300: #ffec5c;
+            --color-yellow-400: #ffcc33;
+            --color-yellow-500: #ffb800;
+            --color-orange-50: #fff8f0;
+            --color-orange-100: #ffe8d1;
+            --color-orange-200: #ffd4a8;
+            --color-orange-300: #ffb870;
+            --color-orange-400: #ff9f45;
+            --color-purple-50: #f5f3ff;
+            --color-purple-100: #ede9fe;
+            --color-purple-200: #ddd6fe;
+            --color-purple-300: #c4b5fd;
+            --color-purple-400: #a78bfa;
+            --color-green-50: #f0fdf4;
+            --color-green-100: #dcfce7;
+            --color-green-200: #bbf7d0;
+            --color-green-300: #86efac;
+            --color-green-400: #4ade80;
+            --color-background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 50%, #fffef0 100%);
+            --color-surface: #ffffff;
+            --color-text: #2d4691;
+            --color-text-secondary: #5775cd;
+            --color-text-light: #7e99ff;
+            --color-primary: var(--color-blue-600);
+            --color-primary-hover: var(--color-blue-700);
+            --color-accent: var(--color-yellow-400);
+            --color-border: rgba(93, 117, 205, 0.15);
+            --color-card-shadow: rgba(45, 70, 145, 0.08);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 13px;
+            --font-size-base: 15px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 22px;
+            --font-size-2xl: 28px;
+            --font-size-3xl: 36px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 2px 8px rgba(45, 70, 145, 0.06);
+            --shadow-md: 0 4px 16px rgba(45, 70, 145, 0.1);
+            --shadow-lg: 0 8px 24px rgba(45, 70, 145, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            color: var(--color-text);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 30%, #fffef0 70%, #f5f3ff 100%);
+            background-attachment: fixed;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+            background: linear-gradient(135deg, var(--color-blue-600), var(--color-blue-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: var(--font-size-md);
+            color: var(--color-text-secondary);
+        }
+
+        .header-logo img {
+            height: 50px;
+        }
+
+        .card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-logo {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+        }
+
+        .card-logo img {
+            height: 32px;
+            opacity: 0.85;
+        }
+
+        .card-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-blue-100);
+        }
+
+        .card-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .metric-card {
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .metric-caption {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-light);
+            text-transform: uppercase;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .comparison-table thead {
+            background: linear-gradient(90deg, var(--color-blue-100), var(--color-yellow-100));
+        }
+
+        .comparison-table th {
+            padding: var(--spacing-md) var(--spacing-sm);
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--color-blue-200);
+            font-size: var(--font-size-xs);
+        }
+
+        .comparison-table td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            color: var(--color-text);
+            border-bottom: 1px solid var(--color-border);
+            background: var(--color-white);
+        }
+
+        .comparison-table tbody tr:nth-child(even) td {
+            background: var(--color-blue-50);
+        }
+
+        .metric-name {
+            font-weight: 600;
+        }
+
+        .holdings-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--spacing-xl);
+        }
+
+        .holdings-chart-wrapper {
+            background: linear-gradient(135deg, var(--color-yellow-50), var(--color-orange-50));
+            border: 2px solid var(--color-yellow-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+
+        .dropdown-toggle {
+            width: 100%;
+            background: linear-gradient(90deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--color-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .dropdown-icon {
+            transition: transform 0.3s ease;
+            font-size: var(--font-size-lg);
+            color: var(--color-primary);
+        }
+
+        .dropdown-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .dropdown-content.open {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .cap-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-md);
+        }
+
+        .cap-item {
+            background: linear-gradient(135deg, var(--color-green-50), var(--color-blue-50));
+            border: 2px solid var(--color-green-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .cap-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .cap-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .period-toggle {
+            display: inline-flex;
+            gap: var(--spacing-xs);
+            background: var(--color-blue-50);
+            padding: 4px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--color-blue-200);
+        }
+
+        .period-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400));
+            color: var(--color-white);
+        }
+
+        .primary-btn {
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400), var(--color-yellow-400));
+            color: var(--color-white);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .download-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-xl);
+            border-top: 2px solid var(--color-border);
+        }
+
+        @media (max-width: 1024px) {
+            .holdings-layout {
+                grid-template-columns: 1fr;
+            }
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+
+        .upload-item {
+            background: linear-gradient(135deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .upload-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .upload-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400));
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+        }
+
+        .upload-title {
+            font-size: var(--font-size-base);
+        }
+
+        .file-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-sm);
+            background: white;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .file-input:hover {
+            border-color: var(--color-primary);
+        }
+
+        .file-status {
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        .file-status.success {
+            color: var(--color-green-400);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- File Upload Page -->
+    <div id="uploadPage" class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Portfolio Dashboard - File Upload</h1>
+                <p>Upload your Excel files to generate comprehensive portfolio analysis</p>
+            </div>
+            <div class="header-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart Logo">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <h2 class="card-title">Upload Required Files</h2>
+            <p class="card-subtitle">Please upload all 6 Excel files to generate your dashboard</p>
+            
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div class="upload-grid">
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">1</span>
+                            <span class="upload-title">Data File (Metrics)</span>
+                        </label>
+                        <input type="file" id="dataFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="dataStatus">No file selected</div>
+                    </div>
+
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">2</span>
+                            <span class="upload-title">Weights File</span>
+                        </label>
+                        <input type="file" id="weightsFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="weightsStatus">No file selected</div>
+                    </div>
+
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">3</span>
+                            <span class="upload-title">Transaction Statement</span>
+                        </label>
+                        <input type="file" id="transactionFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="transactionStatus">No file selected</div>
+                    </div>
+
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">4</span>
+                            <span class="upload-title">Portfolio Summary (XIRR)</span>
+                        </label>
+                        <input type="file" id="summaryFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="summaryStatus">No file selected</div>
+                    </div>
+
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">5</span>
+                            <span class="upload-title">Latest NAV</span>
+                        </label>
+                        <input type="file" id="navFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="navStatus">No file selected</div>
+                    </div>
+
+                    <div class="upload-item">
+                        <label class="upload-label">
+                            <span class="upload-number">6</span>
+                            <span class="upload-title">Common Holdings (Overlap)</span>
+                        </label>
+                        <input type="file" id="holdingsFile" accept=".xlsx,.xls" class="file-input">
+                        <div class="file-status" id="holdingsStatus">No file selected</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 32px;">
+                    <button class="primary-btn" id="submitBtn" onclick="handleSubmit()" disabled>
+                        <span>📊</span>
+                        <span>Generate Dashboard</span>
+                    </button>
+                    <p style="color: var(--color-text-secondary); font-size: 13px; margin-top: 12px;">
+                        All 6 files must be uploaded before proceeding
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Page (Initially Hidden) -->
+    <div id="dashboardPage" class="container" style="display: none;">
+        <div class="header">
+            <div class="header-content">
+                <h1>Portfolio Comparison Dashboard</h1>
+                <p>Comprehensive analysis of portfolio holdings, XIRR performance, risk metrics, stock overlap, and sector allocation</p>
+            </div>
+            <div class="header-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart Logo">
+            </div>
+        </div>
+
+        <!-- XIRR Overview Cards -->
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Client Portfolio</div>
+                    <div class="metric-value">12.72%</div>
+                    <div class="metric-caption">XIRR</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Fincart Optima</div>
+                    <div class="metric-value">23.39%</div>
+                    <div class="metric-caption">XIRR (3Y)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Benchmark (BSE 500)</div>
+                    <div class="metric-value">16.26%</div>
+                    <div class="metric-caption">XIRR (3Y)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CAGR Comparison -->
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <h2 class="card-title">CAGR Comparison</h2>
+            <p class="card-subtitle">Compound Annual Growth Rate for client portfolio, Fincart Optima, and benchmark</p>
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Portfolio</th>
+                            <th>1Y CAGR (%)</th>
+                            <th>3Y CAGR (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="metric-name">Client Portfolio</td>
+                            <td>7.75%</td>
+                            <td>20.19%</td>
+                        </tr>
+                        <tr>
+                            <td class="metric-name">Fincart Optima</td>
+                            <td>13.76%</td>
+                            <td>23.39%</td>
+                        </tr>
+                        <tr>
+                            <td class="metric-name">Benchmark (BSE 500)</td>
+                            <td>8.07%</td>
+                            <td>16.26%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Portfolio Holdings -->
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <h2 class="card-title">Portfolio Holdings Distribution</h2>
+            <p class="card-subtitle">Total Portfolio Value: ₹7,92,729 | Total Invested: ₹6,48,001 | Gains: ₹1,44,728 (22.33%)</p>
+            <div class="holdings-layout">
+                <div class="holdings-table-wrapper">
+                    <div class="table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Fund Name</th>
+                                    <th>Allocated Capital</th>
+                                    <th>Weight (%)</th>
+                                    <th>Current Value</th>
+                                    <th>Gains</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdingsTableBody"></tbody>
+                            <tfoot style="background: linear-gradient(90deg, var(--color-blue-100), var(--color-yellow-100)); font-weight: 700;">
+                                <tr>
+                                    <td class="metric-name">TOTAL</td>
+                                    <td>₹6,48,001</td>
+                                    <td>100.00%</td>
+                                    <td>₹7,92,729</td>
+                                    <td style="color: #4ade80;">₹1,44,728</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="holdings-chart-wrapper">
+                    <h3>Weight Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="holdingsPieChart"></canvas>
+                    </div>
+                    <div id="pieChartLegend" style="margin-top: 16px; font-size: 11px; line-height: 1.6;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Overlap & Sector -->
+        <div class="card-row">
+            <div class="card">
+                <div class="card-logo">
+                    <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+                </div>
+                <h2 class="card-title">Stock Overlap</h2>
+                <button class="dropdown-toggle" onclick="toggleDropdown('overlap')">
+                    <span>View Stock Overlap Matrix</span>
+                    <span class="dropdown-icon" id="overlapIcon">▼</span>
+                </button>
+                <div class="dropdown-content" id="overlapContent">
+                    <div class="table-wrapper">
+                        <table class="comparison-table" id="overlapTable"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-logo">
+                    <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+                </div>
+                <h2 class="card-title">Sector Allocation</h2>
+                <button class="dropdown-toggle" onclick="toggleDropdown('sector')">
+                    <span>View Sector Allocation</span>
+                    <span class="dropdown-icon" id="sectorIcon">▼</span>
+                </button>
+                <div class="dropdown-content" id="sectorContent">
+                    <div style="height: 320px; padding: 16px;">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Cap -->
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <h2 class="card-title">Market Cap Allocation</h2>
+            <p class="card-subtitle">Distribution across the weighted portfolio</p>
+            <div class="cap-distribution">
+                <div class="cap-item">
+                    <div class="cap-label">Large Cap</div>
+                    <div class="cap-value">58.48</div>
+                    <div class="metric-caption">%</div>
+                </div>
+                <div class="cap-item">
+                    <div class="cap-label">Mid Cap</div>
+                    <div class="cap-value">29.01</div>
+                    <div class="metric-caption">%</div>
+                </div>
+                <div class="cap-item">
+                    <div class="cap-label">Small Cap</div>
+                    <div class="cap-value">12.51</div>
+                    <div class="metric-caption">%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="card">
+            <div class="card-logo">
+                <img src="https://www.genspark.ai/api/files/s/uGgq7P3J" alt="Fincart">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="card-title" style="margin: 0; border: none;">Performance Metrics Comparison</h2>
+                <div class="period-toggle">
+                    <button class="period-btn" onclick="setPeriod('3M')">3M</button>
+                    <button class="period-btn" onclick="setPeriod('6M')">6M</button>
+                    <button class="period-btn" onclick="setPeriod('1Y')">1Y</button>
+                    <button class="period-btn active" onclick="setPeriod('3Y')">3Y</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Client Portfolio</th>
+                            <th>Fincart Optima</th>
+                            <th>BSE 500</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metricsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="download-wrapper">
+            <button class="primary-btn" onclick="window.print()">
+                <span>⬇️</span>
+                <span>Download Dashboard as PDF</span>
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // File Upload Management
+        const uploadedFiles = {
+            data: null,
+            weights: null,
+            transaction: null,
+            summary: null,
+            nav: null,
+            holdings: null
+        };
+
+        // Set up file input listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileInputs();
+        });
+
+        function setupFileInputs() {
+            const fileInputs = [
+                {id: 'dataFile', key: 'data', status: 'dataStatus'},
+                {id: 'weightsFile', key: 'weights', status: 'weightsStatus'},
+                {id: 'transactionFile', key: 'transaction', status: 'transactionStatus'},
+                {id: 'summaryFile', key: 'summary', status: 'summaryStatus'},
+                {id: 'navFile', key: 'nav', status: 'navStatus'},
+                {id: 'holdingsFile', key: 'holdings', status: 'holdingsStatus'}
+            ];
+
+            fileInputs.forEach(input => {
+                const element = document.getElementById(input.id);
+                if (element) {
+                    element.addEventListener('change', function(e) {
+                        handleFileUpload(e, input.key, input.status);
+                    });
+                }
+            });
+        }
+
+        function handleFileUpload(event, key, statusId) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedFiles[key] = file;
+                const statusElement = document.getElementById(statusId);
+                statusElement.textContent = `✓ ${file.name}`;
+                statusElement.classList.add('success');
+                checkAllFilesUploaded();
+            }
+        }
+
+        function checkAllFilesUploaded() {
+            const allUploaded = Object.values(uploadedFiles).every(file => file !== null);
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = !allUploaded;
+            }
+        }
+
+        function handleSubmit() {
+            // In a real implementation, files would be processed here
+            // For now, we'll just show the dashboard with existing data
+            document.getElementById('uploadPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            init();
+        }
+
+        // Client Portfolio Data with Market Cap percentages (from Excel data file)
+        const clientHoldings = [
+            {"name": "Axis ELSS Tax Saver Fd Dir Gr", "weight": 3.76, "allocatedCapital": 24364.82, "investedValue": 24364.82, "marketValue": 29816.99, "gains": 5452.17, "largeCap": 74.44, "midCap": 19.10, "smallCap": 4.49},
+            {"name": "Axis Large Cap Fund Dir Gr", "weight": 21.03, "allocatedCapital": 136274.54, "investedValue": 136274.54, "marketValue": 166703.02, "gains": 30428.48, "largeCap": 94.98, "midCap": 0.86, "smallCap": 0.00},
+            {"name": "DSP Small Cap Dir Gr", "weight": 11.05, "allocatedCapital": 71604.07, "investedValue": 71604.07, "marketValue": 87632.44, "gains": 16028.37, "largeCap": 0.00, "midCap": 4.26, "smallCap": 89.82},
+            {"name": "HDFC Mid Cap Dir Gr", "weight": 25.86, "allocatedCapital": 167572.97, "investedValue": 167572.97, "marketValue": 204999.58, "gains": 37426.61, "largeCap": 8.55, "midCap": 63.77, "smallCap": 20.58},
+            {"name": "Mirae Asset ELSS Tax Saver Dir Gr", "weight": 1.86, "allocatedCapital": 12052.81, "investedValue": 12052.81, "marketValue": 14738.56, "gains": 2685.75, "largeCap": 62.31, "midCap": 16.82, "smallCap": 19.75},
+            {"name": "Motilal Oswal Large & Midcap Reg Gr", "weight": 6.66, "allocatedCapital": 43156.84, "investedValue": 43156.84, "marketValue": 52796.78, "gains": 9639.94, "largeCap": 36.19, "midCap": 38.74, "smallCap": 23.90},
+            {"name": "Parag Parikh Flexi Cap Reg Gr", "weight": 6.1, "allocatedCapital": 39528.04, "investedValue": 39528.04, "marketValue": 48333.04, "gains": 8805.0, "largeCap": 61.26, "midCap": 3.12, "smallCap": 2.73},
+            {"name": "SBI Midcap Dir Gr", "weight": 0.82, "allocatedCapital": 5313.61, "investedValue": 5313.61, "marketValue": 6473.22, "gains": 1159.61, "largeCap": 5.86, "midCap": 72.82, "smallCap": 16.50},
+            {"name": "SBI Nifty Next 50 Index Dir Gr", "weight": 3.82, "allocatedCapital": 24753.62, "investedValue": 24753.62, "marketValue": 30316.15, "gains": 5562.53, "largeCap": 84.68, "midCap": 15.33, "smallCap": 0.00},
+            {"name": "Tata Business Cycle Reg Gr", "weight": 19.04, "allocatedCapital": 123379.32, "investedValue": 123379.32, "marketValue": 150919.16, "gains": 27539.84, "largeCap": 51.44, "midCap": 26.64, "smallCap": 21.02}
+        ];
+
+        const clientMetrics = {
+            '3M': {cagr: -1.96, vol: 13.53, sharpe: 0.16, sortino: 0.24, alpha: 0.79, beta: 0.67, maxDD: -7.94},
+            '6M': {cagr: 2.98, vol: 13.53, sharpe: 0.16, sortino: 0.24, alpha: 0.79, beta: 0.67, maxDD: -7.94},
+            '1Y': {cagr: 7.75, vol: 13.53, sharpe: 0.16, sortino: 0.24, alpha: 0.79, beta: 0.67, maxDD: -7.94},
+            '3Y': {cagr: 20.19, vol: 13.73, sharpe: 0.93, sortino: 1.58, alpha: 1.65, beta: 0.68, maxDD: -17.28}
+        };
+
+        const fincartMetrics = {
+            '3M': {cagr: 19.77, vol: 8.68, sharpe: 1.76, sortino: 2.70, alpha: 5.48, beta: 0.68, maxDD: -3.68},
+            '6M': {cagr: 13.86, vol: 7.70, sharpe: 1.25, sortino: 1.85, alpha: 10.68, beta: 0.62, maxDD: -3.68},
+            '1Y': {cagr: 13.76, vol: 10.24, sharpe: 0.96, sortino: 1.39, alpha: 8.17, beta: 0.67, maxDD: -7.57},
+            '3Y': {cagr: 23.39, vol: 9.90, sharpe: 1.86, sortino: 2.58, alpha: 10.45, beta: 0.69, maxDD: -10.50}
+        };
+
+        const overlapMatrix = [
+            ["Axis ELSS Tax Saver Fd Dir Gr", "1.00", "-", "-", "-", "-", "-", "-", "-", "-", "-"],
+            ["Axis Large Cap Fund Dir Gr", "0.64", "1.00", "-", "-", "-", "-", "-", "-", "-", "-"],
+            ["DSP Small Cap Dir Gr", "0.02", "0.00", "1.00", "-", "-", "-", "-", "-", "-", "-"],
+            ["HDFC Mid Cap Dir Gr", "0.12", "0.04", "0.05", "1.00", "-", "-", "-", "-", "-", "-"],
+            ["Mirae Asset ELSS Tax Saver Dir Gr", "0.39", "0.41", "0.03", "0.12", "1.00", "-", "-", "-", "-", "-"],
+            ["Motilal Oswal Large & Midcap Reg Gr", "0.17", "0.15", "0.02", "0.03", "0.07", "1.00", "-", "-", "-", "-"],
+            ["Parag Parikh Flexi Cap Reg Gr", "0.27", "0.30", "0.00", "0.01", "0.29", "0.01", "1.00", "-", "-", "-"],
+            ["SBI Midcap Dir Gr", "0.09", "0.03", "0.01", "0.16", "0.05", "0.01", "0.01", "1.00", "-", "-"],
+            ["SBI Nifty Next 50 Index Dir Gr", "0.18", "0.13", "0.00", "0.06", "0.06", "0.13", "0.03", "0.07", "1.00", "-"],
+            ["Tata Business Cycle Reg Gr", "0.02", "0.03", "0.01", "0.08", "0.03", "0.07", "0.04", "0.12", "0.10", "1.00"]
+        ];
+
+        const sectorData = {
+            labels: ['Financial Services', 'Consumer Cyclical', 'Industrials', 'Healthcare', 'Basic Materials', 'Technology', 'Consumer Defensive', 'Communication', 'Utilities', 'Real Estate'],
+            values: [28.70, 15.95, 12.58, 9.26, 8.63, 7.86, 5.58, 3.55, 2.17, 0.97]
+        };
+
+        let currentPeriod = '3Y';
+
+        // Initialize dashboard
+        function init() {
+            loadHoldingsTable();
+            loadHoldingsPieChart();
+            loadOverlapTable();
+            loadSectorChart();
+            updateMetricsTable();
+            calculateMarketCapAllocation();
+        }
+
+        function loadHoldingsTable() {
+            const tbody = document.getElementById('holdingsTableBody');
+            tbody.innerHTML = clientHoldings.map(h => `
+                <tr>
+                    <td class="metric-name">${h.name}</td>
+                    <td>₹${h.allocatedCapital.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                    <td>${h.weight}%</td>
+                    <td>₹${h.marketValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                    <td style="color: ${h.gains >= 0 ? '#4ade80' : '#ff9f45'}">₹${h.gains.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadHoldingsPieChart() {
+            const ctx = document.getElementById('holdingsPieChart').getContext('2d');
+            const colors = ['#5775cd', '#7e99ff', '#a5bbff', '#ffcc33', '#ffb800', '#ff9f45', '#a78bfa', '#4ade80', '#86efac', '#c4b5fd'];
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: clientHoldings.map(h => h.name),
+                    datasets: [{
+                        data: clientHoldings.map(h => h.weight),
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {display: false}
+                    }
+                }
+            });
+            
+            // Create custom legend
+            const legendDiv = document.getElementById('pieChartLegend');
+            legendDiv.innerHTML = clientHoldings.map((h, idx) => 
+                `<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <div style="width: 12px; height: 12px; background: ${colors[idx]}; border-radius: 2px; flex-shrink: 0;"></div>
+                    <span style="color: var(--color-text);">${h.name}: ${h.weight}%</span>
+                </div>`
+            ).join('');
+        }
+
+        function loadOverlapTable() {
+            const table = document.getElementById('overlapTable');
+            let html = '<thead><tr><th>Fund</th>';
+            for (let i = 1; i <= 10; i++) html += `<th style="text-align:center">${i}</th>`;
+            html += '</tr></thead><tbody>';
+            
+            overlapMatrix.forEach((row, idx) => {
+                html += '<tr>';
+                row.forEach((cell, cellIdx) => {
+                    if (cellIdx === 0) {
+                        html += `<td class="metric-name">${idx + 1} ${cell}</td>`;
+                    } else {
+                        const isSelf = cell === "1.00";
+                        html += `<td style="text-align:center; ${isSelf ? 'background:#a5bbff; font-weight:700;' : ''}">${cell}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function loadSectorChart() {
+            const ctx = document.getElementById('sectorChart').getContext('2d');
+            const barColors = ['#5775cd', '#7e99ff', '#a5bbff', '#ffcc33', '#ffb800', '#ff9f45', '#a78bfa', '#4ade80', '#86efac', '#c4b5fd'];
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sectorData.labels,
+                    datasets: [{
+                        label: 'Allocation (%)',
+                        data: sectorData.values,
+                        backgroundColor: barColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => value.toFixed(2) + '%',
+                            color: '#2d4691',
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Percentage (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sectors'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMetricsTable() {
+            const tbody = document.getElementById('metricsTableBody');
+            const client = clientMetrics[currentPeriod];
+            const fincart = fincartMetrics[currentPeriod];
+            
+            tbody.innerHTML = `
+                <tr><td class="metric-name">CAGR</td><td>${client.cagr.toFixed(2)}%</td><td>${fincart.cagr.toFixed(2)}%</td><td>16.26%</td></tr>
+                <tr><td class="metric-name">Sharpe Ratio</td><td>${client.sharpe.toFixed(2)}</td><td>${fincart.sharpe.toFixed(2)}</td><td>0.75</td></tr>
+                <tr><td class="metric-name">Volatility</td><td>${client.vol.toFixed(2)}%</td><td>${fincart.vol.toFixed(2)}%</td><td>12.85%</td></tr>
+                <tr><td class="metric-name">Max Drawdown</td><td>${client.maxDD.toFixed(2)}%</td><td>${fincart.maxDD.toFixed(2)}%</td><td>-</td></tr>
+                <tr><td class="metric-name">Alpha</td><td>${client.alpha.toFixed(2)}%</td><td>${fincart.alpha.toFixed(2)}%</td><td>-</td></tr>
+                <tr><td class="metric-name">Beta</td><td>${client.beta.toFixed(2)}</td><td>${fincart.beta.toFixed(2)}</td><td>-</td></tr>
+                <tr><td class="metric-name">Sortino Ratio</td><td>${client.sortino.toFixed(2)}</td><td>${fincart.sortino.toFixed(2)}</td><td>-</td></tr>
+            `;
+        }
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === period);
+            });
+            updateMetricsTable();
+        }
+
+        function toggleDropdown(type) {
+            const content = document.getElementById(type + 'Content');
+            const icon = document.getElementById(type + 'Icon');
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+        }
+
+        function calculateMarketCapAllocation() {
+            let totalLargeCap = 0;
+            let totalMidCap = 0;
+            let totalSmallCap = 0;
+
+            clientHoldings.forEach(fund => {
+                const weightDecimal = fund.weight / 100;
+                totalLargeCap += (fund.largeCap / 100) * fund.weight;
+                totalMidCap += (fund.midCap / 100) * fund.weight;
+                totalSmallCap += (fund.smallCap / 100) * fund.weight;
+            });
+
+            // Update the market cap display
+            document.querySelector('.cap-distribution').innerHTML = `
+                <div class="cap-item">
+                    <div class="cap-label">Large Cap</div>
+                    <div class="cap-value">${totalLargeCap.toFixed(2)}</div>
+                    <div class="metric-caption">%</div>
+                </div>
+                <div class="cap-item">
+                    <div class="cap-label">Mid Cap</div>
+                    <div class="cap-value">${totalMidCap.toFixed(2)}</div>
+                    <div class="metric-caption">%</div>
+                </div>
+                <div class="cap-item">
+                    <div class="cap-label">Small Cap</div>
+                    <div class="cap-value">${totalSmallCap.toFixed(2)}</div>
+                    <div class="metric-caption">%</div>
+                </div>
+            `;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

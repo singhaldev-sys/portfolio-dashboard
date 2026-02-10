@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Portfolio Comparison Dashboard - Fincart</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+        :root {
+            --color-white: #ffffff;
+            --color-black: #000000;
+            --color-blue-50: #f0f5ff;
+            --color-blue-100: #e3ebff;
+            --color-blue-200: #c7d7fe;
+            --color-blue-300: #a5bbff;
+            --color-blue-400: #7e99ff;
+            --color-blue-500: #5775cd;
+            --color-blue-600: #3d5aaf;
+            --color-blue-700: #2d4691;
+            --color-yellow-50: #fffef0;
+            --color-yellow-100: #fffacd;
+            --color-yellow-200: #fff59d;
+            --color-yellow-300: #ffec5c;
+            --color-yellow-400: #ffcc33;
+            --color-yellow-500: #ffb800;
+            --color-orange-50: #fff8f0;
+            --color-orange-100: #ffe8d1;
+            --color-orange-200: #ffd4a8;
+            --color-orange-300: #ffb870;
+            --color-orange-400: #ff9f45;
+            --color-purple-50: #f5f3ff;
+            --color-purple-100: #ede9fe;
+            --color-purple-200: #ddd6fe;
+            --color-purple-300: #c4b5fd;
+            --color-purple-400: #a78bfa;
+            --color-green-50: #f0fdf4;
+            --color-green-100: #dcfce7;
+            --color-green-200: #bbf7d0;
+            --color-green-300: #86efac;
+            --color-green-400: #4ade80;
+            --color-background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 50%, #fffef0 100%);
+            --color-surface: #ffffff;
+            --color-text: #2d4691;
+            --color-text-secondary: #5775cd;
+            --color-text-light: #7e99ff;
+            --color-primary: var(--color-blue-600);
+            --color-primary-hover: var(--color-blue-700);
+            --color-accent: var(--color-yellow-400);
+            --color-border: rgba(93, 117, 205, 0.15);
+            --color-card-shadow: rgba(45, 70, 145, 0.08);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 13px;
+            --font-size-base: 15px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 22px;
+            --font-size-2xl: 28px;
+            --font-size-3xl: 36px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 2px 8px rgba(45, 70, 145, 0.06);
+            --shadow-md: 0 4px 16px rgba(45, 70, 145, 0.1);
+            --shadow-lg: 0 8px 24px rgba(45, 70, 145, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            color: var(--color-text);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 30%, #fffef0 70%, #f5f3ff 100%);
+            background-attachment: fixed;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+            background: linear-gradient(135deg, var(--color-blue-600), var(--color-blue-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: var(--font-size-md);
+            color: var(--color-text-secondary);
+        }
+
+        .header-logo img {
+            height: 50px;
+        }
+
+        .card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            page-break-inside: avoid;
+        }
+        
+        /* Compact Card Styling for XIRR & Market Cap */
+        .card.compact-card {
+            padding: var(--spacing-sm) var(--spacing-lg);
+        }
+        
+        .compact-card .card-logo {
+            top: 10px;
+            right: 16px;
+        }
+        
+        .compact-card .card-logo img {
+            height: 24px;
+        }
+        
+        .compact-card .metrics-grid {
+             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+             gap: var(--spacing-sm);
+        }
+        
+        .compact-card .metric-card, .compact-card .cap-item {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .compact-card .metric-label, .compact-card .cap-label {
+            font-size: 11px;
+            margin-bottom: 0;
+            opacity: 0.8;
+        }
+        
+        .compact-card .metric-value, .compact-card .cap-value {
+            font-size: 20px;
+            margin: 4px 0 0 0;
+        }
+
+        .card-logo {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+        }
+
+        .card-logo img {
+            height: 32px;
+            opacity: 0.85;
+        }
+
+        .card-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-blue-100);
+        }
+
+        .card-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .metric-card {
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .metric-caption {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-light);
+            text-transform: uppercase;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .comparison-table thead {
+            background: linear-gradient(90deg, var(--color-blue-100), var(--color-yellow-100));
+            -webkit-print-color-adjust: exact; 
+        }
+
+        .comparison-table th {
+            padding: var(--spacing-md) var(--spacing-sm);
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--color-blue-200);
+            font-size: var(--font-size-xs);
+        }
+
+        .comparison-table td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            color: var(--color-text);
+            border-bottom: 1px solid var(--color-border);
+            background: var(--color-white);
+        }
+
+        .comparison-table tbody tr:nth-child(even) td {
+            background: var(--color-blue-50);
+            -webkit-print-color-adjust: exact;
+        }
+
+        .metric-name {
+            font-weight: 600;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--color-text-secondary);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--color-blue-700);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1.4;
+            text-transform: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--color-blue-700) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .holdings-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--spacing-xl);
+        }
+        
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .holdings-chart-wrapper {
+            background: linear-gradient(135deg, var(--color-yellow-50), var(--color-orange-50));
+            border: 2px solid var(--color-yellow-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+
+        .dropdown-toggle {
+            width: 100%;
+            background: linear-gradient(90deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--color-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            -webkit-print-color-adjust: exact;
+        }
+
+        .dropdown-icon {
+            transition: transform 0.3s ease;
+            font-size: var(--font-size-lg);
+            color: var(--color-primary);
+        }
+
+        .dropdown-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .dropdown-content.open {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .cap-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-md);
+        }
+        
+        .compact-card .cap-distribution {
+             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+             gap: var(--spacing-sm);
+             margin-top: 4px;
+        }
+
+        .cap-item {
+            background: linear-gradient(135deg, var(--color-green-50), var(--color-blue-50));
+            border: 2px solid var(--color-green-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .cap-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .cap-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: var(--spacing-sm) 0;
+        }
+
+        .period-toggle {
+            display: inline-flex;
+            gap: var(--spacing-xs);
+            background: var(--color-blue-50);
+            padding: 4px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--color-blue-200);
+        }
+
+        .period-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400));
+            color: var(--color-white);
+            -webkit-print-color-adjust: exact;
+        }
+
+        .primary-btn {
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400), var(--color-yellow-400));
+            color: var(--color-white);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .download-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-xl);
+            border-top: 2px solid var(--color-border);
+        }
+        
+        .disclaimer-text {
+            font-size: 11px; 
+            color: var(--color-text-secondary); 
+            font-style: italic; 
+            margin-top: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .holdings-layout, .split-layout {
+                grid-template-columns: 1fr;
+            }
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+
+        .upload-item {
+            background: linear-gradient(135deg, var(--color-blue-50), var(--color-purple-50));
+            border: 2px solid var(--color-blue-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .upload-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .upload-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--color-blue-500), var(--color-purple-400));
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+        }
+
+        .upload-title {
+            font-size: var(--font-size-base);
+        }
+
+        .file-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-sm);
+            background: white;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .file-status {
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        .file-status.success {
+            color: var(--color-green-400);
+            font-weight: 600;
+        }
+
+        /* Print Specific Styles for Perfect PDF */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: white;
+            }
+            
+            .container {
+                max-width: 100%;
+                width: 100%;
+                padding: 0;
+            }
+
+            .download-wrapper, .dropdown-toggle, #uploadPage, .dropdown-icon {
+                display: none !important;
+            }
+
+            .dropdown-content {
+                display: block !important;
+                max-height: none !important;
+                opacity: 1 !important;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            .chart-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="uploadPage">
+<div class="header">
+<div class="header-content">
+<h1>Portfolio Dashboard - File Upload</h1>
+<p>Upload your Excel files to generate comprehensive portfolio analysis</p>
+</div>
+<div class="header-logo">
+<img alt="Fincart Logo" src="data:image/png;base64,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"/>
+</div>
+</div>
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<h2 class="card-title">Upload Required Files</h2>
+<p class="card-subtitle">Please upload all 8 Excel files to generate your dashboard</p>
+<div style="max-width: 800px; margin: 0 auto;">
+<div class="upload-grid">
+<div class="upload-item">
+<label class="upload-label" for="dataFile">
+<span class="upload-number">1</span>
+<span class="upload-title">Data File (Metrics)</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="dataFile" type="file"/>
+<div class="file-status" id="dataStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="weightsFile">
+<span class="upload-number">2</span>
+<span class="upload-title">Weights File</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="weightsFile" type="file"/>
+<div class="file-status" id="weightsStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="transactionFile">
+<span class="upload-number">3</span>
+<span class="upload-title">Transaction Statement</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="transactionFile" type="file"/>
+<div class="file-status" id="transactionStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="summaryFile">
+<span class="upload-number">4</span>
+<span class="upload-title">Portfolio Summary (XIRR)</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="summaryFile" type="file"/>
+<div class="file-status" id="summaryStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="navFile">
+<span class="upload-number">5</span>
+<span class="upload-title">Latest NAV</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="navFile" type="file"/>
+<div class="file-status" id="navStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="holdingsFile">
+<span class="upload-number">6</span>
+<span class="upload-title">Common Holdings (Overlap)</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="holdingsFile" type="file"/>
+<div class="file-status" id="holdingsStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="pmsNavFile">
+<span class="upload-number">7</span>
+<span class="upload-title">PMS / Model Portfolio NAV (Datewise)</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="pmsNavFile" type="file"/>
+<div class="file-status" id="pmsNavStatus">No file selected</div>
+</div>
+<div class="upload-item">
+<label class="upload-label" for="bseFile">
+<span class="upload-number">8</span>
+<span class="upload-title">Benchmark (BSE 500) Price (Datewise)</span>
+</label>
+<input accept=".xlsx,.xls" class="file-input" id="bseFile" type="file"/>
+<div class="file-status" id="bseStatus">No file selected</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 32px;">
+<button class="primary-btn" disabled="" id="submitBtn" onclick="handleSubmit()">
+<span>📊</span>
+<span>Generate Dashboard</span>
+</button>
+<p style="color: var(--color-text-secondary); font-size: 13px; margin-top: 12px;">
+                        All 8 files must be uploaded before proceeding
+                    </p>
+</div>
+</div>
+</div>
+</div>
+<div class="container" id="dashboardPage" style="display: none;">
+<div class="header">
+<div class="header-content">
+<h1>Portfolio Comparison Dashboard</h1>
+<p>Comprehensive analysis of portfolio holdings, XIRR performance, risk metrics, stock overlap, and sector allocation</p>
+</div>
+<div class="header-logo">
+<img alt="Fincart Logo" src="data:image/png;base64,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"/>
+</div>
+</div>
+<div class="card compact-card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<div class="metrics-grid">
+<div class="metric-card">
+<div class="metric-label">Client Portfolio (XIRR)</div>
+<div class="metric-value" id="clientXirrDisplay">12.72%</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Fincart Optima (XIRR)</div>
+<div class="metric-value" id="modelXirrDisplay">15.71%</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Benchmark (BSE 500) (XIRR)</div>
+<div class="metric-value" id="bseXirrDisplay">9.99%</div>
+</div>
+</div>
+</div>
+<div class="split-layout">
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAABMlBMVEUAV6f///8AUqYAVaYAV6b///0AV6kAVakAVKQAUqcAUZ/2+fv///v//v9Df73o8/drmsm0z+kcY63B1OcAU62vx99ugX5WicEAWKTb6/gAT6MAVaz6//95n8oAWKIAVq9ZisE2dLWgv98ATab/wTwAWp8AUa5mkr7WsUwXZawAXquMsdMAS51sncqUut+TtdUicLc+fbNbl9CIsd0+eLOUrM2tzutYiLafxOxxodYCXZm22fLD1+Q2fr95s9xZfIhZicccYpf/wyr/wkTdvUmMjHSlm2f0wj6jlG97iXuLjXCMinzE3elcdo7LslMpbpO7qGIATrLe9P/JqFXJpmJDbJTsuE2NnoBXdZKqoGb/vTj1xzxugInT5vm3m2dtiIL4xzf/uUxxi3eAtte32uV2ruEFiOxhAAALRElEQVR4nO2aC3faRhbHJc1oZiRkECAHIQmBJMAWCi9D7DiJm9gkcZtH82qzrbvuZrft9/8Ke0dgA7Z7Ts/GdrI992cnFgKE/rp37ksoCoIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIL8H0A0bhjkS5/FTcFcrqXZcDCMHJexL302N4MfVfej0VZ57Cjulz6Xm4BRc7O1Fcc70cMKp1/6bG4CyqM4mdR6uzwb/00VGtPs7r3d3XuO3dL+luuQkWiQTPbG982saN6eQqpwl37ux51Fxq4Pm6tQ7svPWKC45el+0RuOqhV6e17KQ58x97M+Lz95CXsQMuquoDSVjtx/hj9+uJWme4/2DHJ7Cp1QYfzzFBpNf5HDfS58ZwVODUeRaT5HCJFEgziODzx+/cli8SFzyPkuohBOvnngXKwy4DlC1nd4CeB55OJLKbPDMy91H9+5wGOQQqatJTVJypVrXoeUp7UViiGcJpvKjyKMaNUqI0xZMaNg4yetmjLXQl1GDCOtZZvVajm2I2K4bPla5vrFUuQvvPRw++hTG5jJ/9pH8PO0wxRvU1V1dZWW8K/ZiMxoBMvjW68EU4goW2qhqFGibarlHkSE5WlzUVetUjpXyJhI0mEd3q/L0yyVa8qKQsqMTTVLeP6A9O48e/ns+fZxezY7/va7Zy+evfxOkQp1eG/+bj0nqF27QqrZhaVC/ZVBwe12dbW0UKhvmpwv3U+AQvVMISWiVVJ1y4Jfy5IaR9rKkY1pQa9X+OIRVVizy15vgxW/f/MOvFeEcxuqc3nzjeD6bagYdkHfOFf4SIZwUVZ1sCGTClU9DiG6na0NQuqWXqoQmUtcToeWNF/wvn5aL8BmaeovFxHVYjhw3wjzIsVnnFO30z380J6dvCXUUJpyHW5lWTbJ4EKq9Ukmieh11zS5DfVTuz9nDy45mSs05wo31IHGztciEXVrI1fIXEWbqHqgF+K9Ua9XKQ5KemHqL83NRyUQfSrYXKHQDMPQ3iWvT8BPf3zHHU3GUsNxPOPuDlzcqqdpEGPda+8tpELdKifw8XB8Q5ZMFxRa6iAkzF0qVHOFnGqNwFKt8ihxIBNw02xm76dLgcQb5Ctsq+tymQ+ff3j7w1v5OwO2P3z44Tl4qcIBX7OlQsaZL6uA624RpUJLr8rkQAgUGpStK9Q3AiuAeEHYBYXMjMD46m5HpkxpY66YrdFZumauSMGfrUCtchdOm3W+h/h5BP/AhDOIN0dHT10yLwm4kSsELwYYuwmFul4WK8ddVxjASgsmCbuokHoQj/SqS1acSjs/CqPShSE45wsadnTe/Djnzcf2cfv5IWx1FmfgewsbXrO0v6qw8Ej64r5J8xJ1qVCMrMAqRdpqpF3iNisy6GaBbsV3pV27vhAMvKR7ePxpdvL4XZfwd/T2FKplbwG5pFA/KFvgqg2TKmsKHYiU+jBhhF8VGXyzD9clVuq6WhjJg0IA4VBuM+fF0ay93QnBHUPl1hSq1mljwRSy0bpCteg+tHR1wzbJmkL2CILQ6M9yFxWnqlWIkoZuqUMH1hp/0A1dSrp3jmefPj522PKNt2LD4Lxyyhx6SaFXeQUpPdgxVxWSFMxTv9J+En8PMmnZ1CDcWJD1qUu6jtvkhy9ms/bxnSbrNG9VoaWfoTaMyzbUnAenEFQKNW+e8XOFGhQs+qvkT7IzIVV4Z83gXgx/G9DUOtE/Xn77/cfZ0acPPzVDP/RvVSFIKwQFINAz77INBTPSUyvQS0804Z9lfDIG/6smV3opY1oLkizEf67JlFLvcSjgfz76BHni7Z0OIWt1y62sQ/3ReNFbjK7wUsFcJ6qDIIic7rnC4oZUeOUxia+V4Zy3PEKZVlUt1U6UsNl52z7ZPmSXHPt2FD6UNY1EkMteCgqbSfTekuV4cq5wBM5dv3oZUn8cQKoXhuEZSQ0SBnQsXPDDj7/MnmmX/PpW1qH6uzYfl0Dzc5UNies60/eWtKJ3prBS1/VSKq48qBfrgVW28+hsl1QrGBsQa5zHJ+32P7vsQmH2xTO+VCivuzYuQUQ6HS16C+iOZefgXHVMHpXW21p9V96QIN0XR8cf3xiwDL9GhdDPjiFxWqfSdHnGt9UAYshVBY02sDZ02TZKLFm7FWRJ3nHYr0ft7bTrrjn316IQ8FoFNVCts96iBwnRGiarEueTGlIpQRRSN+azA1nXbqhxImeTPN2eHf1K+deqUElqJegWFv0h8fbBUmrf9DmUYxBIKDeLkaNwkWRqYFWLtWI++KkVt8D2pfntCOfNcfvkBQett1zT/EWFLNmC+mdhQ0LCshyyTKjHoCpj3NDs+phTAsa11KD4TjNzDMeTqaOR31NynX+dtI9f+6yzlPM1KaRNsx9YZz0+9XuvQKF1aqfc80Rn76FeGHHH1RrwpioXZ7NexWjBVYGsr+Tztxft9tMfu7dc00CjvqpQ0cA4oFDheQe8ohCan0awmLXBTid6BevMskrVzc1qXW5EHScEEwZ6zaDnE3tGqxBu+p68eMzvfTj59EO4erdgoZArNzPsZo4NKbm8Os0lZBfKuKLDibGuUOI1Av19Zf7q0GhuQo+7oUK9k489CxGn3S043unadDjv4U/lhAIsyg+f/vvo5+aqQs2WVlduyoYeKIT6Y/WMpJcGY9NVDLmC1hS6zt3sfJrIfbe7dVqQ+QCKdiuoN0InpND5qra3+hmsA/uCSCqgCuv+9Mvs6OXKTI5p+3MvvaGb+PwgyzJ7fU5vw64R+BmXGxFZUUhcYQxKCxtCgKEGrQ2r9VKp/mjQUroh96NBlk1CDr4phy4K4/CH7AyzLOVyCiT80Hn93Z3/dAiTQ0pKXcHEdJgNbWixbkahIkzP09Z3aZ5n5jeNtEXbv6bfzBYKmUIMTdO6Bu1Ven7iGETwSicfFYjQ4HA1OBcUEomfJKZJK65DNcgtQs71BLyWetx1IL9Qx7ubeM2buq0mh9FsfUY5f0zPty7AzoZPXERxw9kaUVYpmuFUsyuE92tdMt1JI75fG/Nef2/Q6O3vZJtZr5t+Q6mfDcaVyW8VczTJJpHX6veG31TA6pXGpMVv6isKFKL0xbtG8JjPXZNcuqEkb+YsNrjZatj7WdH3th5qvDqKI2HYT4jYyw523Xg6SGz7XhGugp/eB6unmR8am/CiwXSQxkW3Fo8GldGkNtlrEHcYxZH/9d3ehkbXbjUmReEOJi2/PByMhNavcVHLoqodi8k0dif399NBygaw4NKMEfN+JZ5OHgz6dkLf9VvZaPpHNNgr/5ZOenHEr25UviRUa5Un6b1ictBIs162U1oq7E+qWrHaSCbT0CtmNHaVXKFXHuyl1c1Ra5KQZFisDEfVybTWEDT+vUU+72bszaC1Gp5zbz+KNyePxgMej0xQqIkn2UGjt8nJbnR30p9WJvtK3KOKVCji0B/FgyL97ZvxZBLuZKNMS2rDYjrIGvTa5/nXgEhHEG36dpGSaBSRtMeFPfZJGlVGouKSCnSK9k7UcukBJI70D+iaDpSwEqVFbtb6NbOy0+lFgqZ2P41orfI1ft2LUgG/msYYbAiquHIaADpI/iMhQkAxAc8Rn4aKfBmF4AULDlIGZyZswjOGARFNuNd9e/uagPMi9GwFQXLnfpinn/mOs+I7D9nQZeWymUz01HVDln8XhYahvKN2cbjx1QDmWxWkuJS7y++LLB1P2k6ZJ9K8lJE9JSUy6cK7SZ6Ur0hMCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgyP/EfwEyGCpLSyu0YQAAAABJRU5ErkJggg=="/>
+</div>
+<h2 class="card-title">CAGR Comparison</h2>
+<p class="card-subtitle">Compound Annual Growth Rate</p>
+<div class="table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Portfolio</th>
+<th>1Y (%)</th>
+<th>3Y (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="metric-name">Client Portfolio</td>
+<td id="clientCagr1Y">7.75%</td>
+<td id="clientCagr3Y">20.19%</td>
+</tr>
+<tr>
+<td class="metric-name">Fincart Optima</td>
+<td id="modelCagr1Y">9.01%</td>
+<td id="modelCagr3Y">21.52%</td>
+</tr>
+<tr>
+<td class="metric-name">Benchmark (BSE 500)</td>
+<td id="bseCagr1Y">7.09%</td>
+<td id="bseCagr3Y">15.59%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="disclaimer-text">* 1Y and 3Y CAGR Calculated assuming current portfolio holdings.</p>
+</div>
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAABMlBMVEUAV6f///8AUqYAVaYAV6b///0AV6kAVakAVKQAUqcAUZ/2+fv///v//v9Df73o8/drmsm0z+kcY63B1OcAU62vx99ugX5WicEAWKTb6/gAT6MAVaz6//95n8oAWKIAVq9ZisE2dLWgv98ATab/wTwAWp8AUa5mkr7WsUwXZawAXquMsdMAS51sncqUut+TtdUicLc+fbNbl9CIsd0+eLOUrM2tzutYiLafxOxxodYCXZm22fLD1+Q2fr95s9xZfIhZicccYpf/wyr/wkTdvUmMjHSlm2f0wj6jlG97iXuLjXCMinzE3elcdo7LslMpbpO7qGIATrLe9P/JqFXJpmJDbJTsuE2NnoBXdZKqoGb/vTj1xzxugInT5vm3m2dtiIL4xzf/uUxxi3eAtte32uV2ruEFiOxhAAALRElEQVR4nO2aC3faRhbHJc1oZiRkECAHIQmBJMAWCi9D7DiJm9gkcZtH82qzrbvuZrft9/8Ke0dgA7Z7Ts/GdrI992cnFgKE/rp37ksoCoIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIL8H0A0bhjkS5/FTcFcrqXZcDCMHJexL302N4MfVfej0VZ57Cjulz6Xm4BRc7O1Fcc70cMKp1/6bG4CyqM4mdR6uzwb/00VGtPs7r3d3XuO3dL+luuQkWiQTPbG982saN6eQqpwl37ux51Fxq4Pm6tQ7svPWKC45el+0RuOqhV6e17KQ58x97M+Lz95CXsQMuquoDSVjtx/hj9+uJWme4/2DHJ7Cp1QYfzzFBpNf5HDfS58ZwVODUeRaT5HCJFEgziODzx+/cli8SFzyPkuohBOvnngXKwy4DlC1nd4CeB55OJLKbPDMy91H9+5wGOQQqatJTVJypVrXoeUp7UViiGcJpvKjyKMaNUqI0xZMaNg4yetmjLXQl1GDCOtZZvVajm2I2K4bPla5vrFUuQvvPRw++hTG5jJ/9pH8PO0wxRvU1V1dZWW8K/ZiMxoBMvjW68EU4goW2qhqFGibarlHkSE5WlzUVetUjpXyJhI0mEd3q/L0yyVa8qKQsqMTTVLeP6A9O48e/ns+fZxezY7/va7Zy+evfxOkQp1eG/+bj0nqF27QqrZhaVC/ZVBwe12dbW0UKhvmpwv3U+AQvVMISWiVVJ1y4Jfy5IaR9rKkY1pQa9X+OIRVVizy15vgxW/f/MOvFeEcxuqc3nzjeD6bagYdkHfOFf4SIZwUVZ1sCGTClU9DiG6na0NQuqWXqoQmUtcToeWNF/wvn5aL8BmaeovFxHVYjhw3wjzIsVnnFO30z380J6dvCXUUJpyHW5lWTbJ4EKq9Ukmieh11zS5DfVTuz9nDy45mSs05wo31IHGztciEXVrI1fIXEWbqHqgF+K9Ua9XKQ5KemHqL83NRyUQfSrYXKHQDMPQ3iWvT8BPf3zHHU3GUsNxPOPuDlzcqqdpEGPda+8tpELdKifw8XB8Q5ZMFxRa6iAkzF0qVHOFnGqNwFKt8ihxIBNw02xm76dLgcQb5Ctsq+tymQ+ff3j7w1v5OwO2P3z44Tl4qcIBX7OlQsaZL6uA624RpUJLr8rkQAgUGpStK9Q3AiuAeEHYBYXMjMD46m5HpkxpY66YrdFZumauSMGfrUCtchdOm3W+h/h5BP/AhDOIN0dHT10yLwm4kSsELwYYuwmFul4WK8ddVxjASgsmCbuokHoQj/SqS1acSjs/CqPShSE45wsadnTe/Djnzcf2cfv5IWx1FmfgewsbXrO0v6qw8Ej64r5J8xJ1qVCMrMAqRdpqpF3iNisy6GaBbsV3pV27vhAMvKR7ePxpdvL4XZfwd/T2FKplbwG5pFA/KFvgqg2TKmsKHYiU+jBhhF8VGXyzD9clVuq6WhjJg0IA4VBuM+fF0ay93QnBHUPl1hSq1mljwRSy0bpCteg+tHR1wzbJmkL2CILQ6M9yFxWnqlWIkoZuqUMH1hp/0A1dSrp3jmefPj522PKNt2LD4Lxyyhx6SaFXeQUpPdgxVxWSFMxTv9J+En8PMmnZ1CDcWJD1qUu6jtvkhy9ms/bxnSbrNG9VoaWfoTaMyzbUnAenEFQKNW+e8XOFGhQs+qvkT7IzIVV4Z83gXgx/G9DUOtE/Xn77/cfZ0acPPzVDP/RvVSFIKwQFINAz77INBTPSUyvQS0804Z9lfDIG/6smV3opY1oLkizEf67JlFLvcSjgfz76BHni7Z0OIWt1y62sQ/3ReNFbjK7wUsFcJ6qDIIic7rnC4oZUeOUxia+V4Zy3PEKZVlUt1U6UsNl52z7ZPmSXHPt2FD6UNY1EkMteCgqbSfTekuV4cq5wBM5dv3oZUn8cQKoXhuEZSQ0SBnQsXPDDj7/MnmmX/PpW1qH6uzYfl0Dzc5UNies60/eWtKJ3prBS1/VSKq48qBfrgVW28+hsl1QrGBsQa5zHJ+32P7vsQmH2xTO+VCivuzYuQUQ6HS16C+iOZefgXHVMHpXW21p9V96QIN0XR8cf3xiwDL9GhdDPjiFxWqfSdHnGt9UAYshVBY02sDZ02TZKLFm7FWRJ3nHYr0ft7bTrrjn316IQ8FoFNVCts96iBwnRGiarEueTGlIpQRRSN+azA1nXbqhxImeTPN2eHf1K+deqUElqJegWFv0h8fbBUmrf9DmUYxBIKDeLkaNwkWRqYFWLtWI++KkVt8D2pfntCOfNcfvkBQett1zT/EWFLNmC+mdhQ0LCshyyTKjHoCpj3NDs+phTAsa11KD4TjNzDMeTqaOR31NynX+dtI9f+6yzlPM1KaRNsx9YZz0+9XuvQKF1aqfc80Rn76FeGHHH1RrwpioXZ7NexWjBVYGsr+Tztxft9tMfu7dc00CjvqpQ0cA4oFDheQe8ohCan0awmLXBTid6BevMskrVzc1qXW5EHScEEwZ6zaDnE3tGqxBu+p68eMzvfTj59EO4erdgoZArNzPsZo4NKbm8Os0lZBfKuKLDibGuUOI1Av19Zf7q0GhuQo+7oUK9k489CxGn3S043unadDjv4U/lhAIsyg+f/vvo5+aqQs2WVlduyoYeKIT6Y/WMpJcGY9NVDLmC1hS6zt3sfJrIfbe7dVqQ+QCKdiuoN0InpND5qra3+hmsA/uCSCqgCuv+9Mvs6OXKTI5p+3MvvaGb+PwgyzJ7fU5vw64R+BmXGxFZUUhcYQxKCxtCgKEGrQ2r9VKp/mjQUroh96NBlk1CDr4phy4K4/CH7AyzLOVyCiT80Hn93Z3/dAiTQ0pKXcHEdJgNbWixbkahIkzP09Z3aZ5n5jeNtEXbv6bfzBYKmUIMTdO6Bu1Ven7iGETwSicfFYjQ4HA1OBcUEomfJKZJK65DNcgtQs71BLyWetx1IL9Qx7ubeM2buq0mh9FsfUY5f0zPty7AzoZPXERxw9kaUVYpmuFUsyuE92tdMt1JI75fG/Nef2/Q6O3vZJtZr5t+Q6mfDcaVyW8VczTJJpHX6veG31TA6pXGpMVv6isKFKL0xbtG8JjPXZNcuqEkb+YsNrjZatj7WdH3th5qvDqKI2HYT4jYyw523Xg6SGz7XhGugp/eB6unmR8am/CiwXSQxkW3Fo8GldGkNtlrEHcYxZH/9d3ehkbXbjUmReEOJi2/PByMhNavcVHLoqodi8k0dif399NBygaw4NKMEfN+JZ5OHgz6dkLf9VvZaPpHNNgr/5ZOenHEr25UviRUa5Un6b1ictBIs162U1oq7E+qWrHaSCbT0CtmNHaVXKFXHuyl1c1Ra5KQZFisDEfVybTWEDT+vUU+72bszaC1Gp5zbz+KNyePxgMej0xQqIkn2UGjt8nJbnR30p9WJvtK3KOKVCji0B/FgyL97ZvxZBLuZKNMS2rDYjrIGvTa5/nXgEhHEG36dpGSaBSRtMeFPfZJGlVGouKSCnSK9k7UcukBJI70D+iaDpSwEqVFbtb6NbOy0+lFgqZ2P41orfI1ft2LUgG/msYYbAiquHIaADpI/iMhQkAxAc8Rn4aKfBmF4AULDlIGZyZswjOGARFNuNd9e/uagPMi9GwFQXLnfpinn/mOs+I7D9nQZeWymUz01HVDln8XhYahvKN2cbjx1QDmWxWkuJS7y++LLB1P2k6ZJ9K8lJE9JSUy6cK7SZ6Ur0hMCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgyP/EfwEyGCpLSyu0YQAAAABJRU5ErkJggg=="/>
+</div>
+<h2 class="card-title">Annual Returns</h2>
+<button class="dropdown-toggle" onclick="toggleDropdown('annual')">
+<span>View Annual Returns</span>
+<span class="dropdown-icon" id="annualIcon">▼</span>
+</button>
+<div class="dropdown-content" id="annualContent">
+<p class="card-subtitle">Calendar-year returns for Model Portfolio vs BSE 500</p>
+<div class="table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Year</th>
+<th>Portfolio</th>
+<th>BSE 500</th>
+<th>Diff</th>
+</tr>
+</thead>
+<tbody id="annualReturnsTableBody">
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<h2 class="card-title">Portfolio Holdings Distribution</h2>
+<p class="card-subtitle" id="holdingsSummarySubtitle">Total Portfolio Value: — | Total Invested: — | Gains: —</p>
+<div class="holdings-layout">
+<div class="holdings-table-wrapper">
+<div class="table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Fund Name</th>
+<th>Allocated Capital</th>
+<th>Weight (%)</th>
+<th>Current Value</th>
+<th>Gains</th>
+</tr>
+</thead>
+<tbody id="holdingsTableBody"></tbody>
+<tfoot style="background: linear-gradient(90deg, var(--color-blue-100), var(--color-yellow-100)); font-weight: 700;">
+<tr>
+<td class="metric-name">TOTAL</td>
+<td><span id="totalInvestedCell">₹0</span></td>
+<td><span id="totalWeightCell">100.00%</span></td>
+<td><span id="totalCurrentValueCell">₹0</span></td>
+<td style="color: #4ade80;"><span id="totalGainsCell">₹0</span></td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<div class="holdings-chart-wrapper">
+<h3>Weight Distribution</h3>
+<div class="chart-container">
+<canvas id="holdingsPieChart"></canvas>
+</div>
+<div id="pieChartLegend" style="margin-top: 16px; font-size: 11px; line-height: 1.6;"></div>
+</div>
+</div>
+</div>
+<div class="card-row">
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<h2 class="card-title">Stock Overlap</h2>
+<button class="dropdown-toggle" onclick="toggleDropdown('overlap')">
+<span>View Stock Overlap Matrix</span>
+<span class="dropdown-icon" id="overlapIcon">▼</span>
+</button>
+<div class="dropdown-content" id="overlapContent">
+<div class="table-wrapper">
+<table class="comparison-table" id="overlapTable"></table>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<h2 class="card-title">Sector Allocation</h2>
+<button class="dropdown-toggle" onclick="toggleDropdown('sector')">
+<span>View Sector Allocation</span>
+<span class="dropdown-icon" id="sectorIcon">▼</span>
+</button>
+<div class="dropdown-content" id="sectorContent">
+<div style="height: 320px; padding: 16px;">
+<canvas id="sectorChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<div class="card compact-card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<h2 class="card-title">Market Cap Allocation (%)</h2>
+<p class="card-subtitle">Distribution across the weighted portfolio</p>
+<div class="cap-distribution" id="capDistribution">
+<div class="cap-item">
+<div class="cap-label">Large Cap</div>
+<div class="cap-value" id="capLarge">--</div>
+</div>
+<div class="cap-item">
+<div class="cap-label">Mid Cap</div>
+<div class="cap-value" id="capMid">--</div>
+</div>
+<div class="cap-item">
+<div class="cap-label">Small Cap</div>
+<div class="cap-value" id="capSmall">--</div>
+</div>
+</div>
+<div id="marketCapDebug"></div>
+</div>
+<div class="card">
+<div class="card-logo">
+<img alt="Fincart" src="data:image/png;base64,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"/>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+<h2 class="card-title" style="margin: 0; border: none;">Performance Metrics Comparison</h2>
+<div class="period-toggle">
+<button class="period-btn" onclick="setPeriod('3M')">3M</button>
+<button class="period-btn" onclick="setPeriod('6M')">6M</button>
+<button class="period-btn" onclick="setPeriod('1Y')">1Y</button>
+<button class="period-btn active" onclick="setPeriod('3Y')">3Y</button>
+</div>
+</div>
+<div class="table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Client Portfolio</th>
+<th>Fincart Optima</th>
+<th>BSE 500</th>
+</tr>
+</thead>
+<tbody id="metricsTableBody"></tbody>
+</table>
+</div>
+</div>
+<div class="download-wrapper">
+<button class="primary-btn" onclick="window.print()">
+<span>⬇️</span>
+<span>Download Dashboard as PDF</span>
+</button>
+</div>
+</div>
+
+<script>
+        // File Upload Management
+        const uploadedFiles = {
+            data: null,
+            weights: null,
+            transaction: null,
+            summary: null,
+            nav: null,
+            holdings: null,
+            pmsNav: null,
+            bse: null
+        };
+
+        // Set up file input listeners (safe if script loads after DOM)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() { setupFileInputs(); });
+        } else {
+            setupFileInputs();
+        }
+
+function setupFileInputs() {
+            const fileInputs = [
+                {id: 'dataFile', key: 'data', status: 'dataStatus'},
+                {id: 'weightsFile', key: 'weights', status: 'weightsStatus'},
+                {id: 'transactionFile', key: 'transaction', status: 'transactionStatus'},
+                {id: 'summaryFile', key: 'summary', status: 'summaryStatus'},
+                {id: 'navFile', key: 'nav', status: 'navStatus'},
+                {id: 'holdingsFile', key: 'holdings', status: 'holdingsStatus'},
+                {id: 'pmsNavFile', key: 'pmsNav', status: 'pmsNavStatus'},
+                {id: 'bseFile', key: 'bse', status: 'bseStatus'}
+            ];
+
+            fileInputs.forEach(input => {
+                const element = document.getElementById(input.id);
+                if (element) {
+                    element.addEventListener('change', function(e) {
+                        handleFileUpload(e, input.key, input.status);
+                    });
+                }
+            });
+        }
+
+        function handleFileUpload(event, key, statusId) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedFiles[key] = file;
+                const statusElement = document.getElementById(statusId);
+                statusElement.textContent = `✓ ${file.name} loaded`;
+                statusElement.classList.add('success');
+                checkAllFilesUploaded();
+            }
+        }
+
+        function checkAllFilesUploaded() {
+            const allUploaded = Object.values(uploadedFiles).every(file => file !== null);
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = !allUploaded;
+            }
+        }
+
+        async function handleSubmit() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>⏳</span><span>Processing...</span>';
+
+            try {
+                await processUploadedFilesAndRender();
+
+                document.getElementById('uploadPage').style.display = 'none';
+                document.getElementById('dashboardPage').style.display = 'block';
+                init();
+            } catch (err) {
+                console.error(err);
+                alert('Could not process the uploaded files. Please verify the templates/columns and try again.\n\nDetails: ' + (err && err.message ? err.message : err));
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>📊</span><span>Generate Dashboard</span>';
+            }
+        }
+
+
+
+        // ---------------------------
+        // Dynamic XIRR / CAGR / Risk metrics (from uploaded files)
+        // ---------------------------
+
+        function formatPct(v, decimals = 2) {
+            if (v === null || v === undefined || isNaN(v)) return '-';
+            return Number(v).toFixed(decimals) + '%';
+        }
+
+        function parseDateFlexible(val) {
+            if (!val) return null;
+            if (val instanceof Date) return val;
+            if (typeof val === 'number') {
+                // Excel serial date
+                const epoch = new Date(Date.UTC(1899, 11, 30));
+                return new Date(epoch.getTime() + val * 24 * 60 * 60 * 1000);
+            }
+            const s = String(val).trim();
+            // Try ISO first
+            const d1 = new Date(s);
+            if (!isNaN(d1)) return d1;
+            // Try dd/mm/yyyy
+            const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+            return null;
+        }
+
+        function isInflowTxnType(txnType) {
+            const t = String(txnType || '').toLowerCase();
+            return (
+                t.includes('redemption') ||
+                t.includes('redeem') ||
+                t.includes('switch out') ||
+                t.includes('swp') ||
+                t.includes('dividend payout')
+            );
+        }
+
+        async function readWorkbook(file) {
+            const data = await file.arrayBuffer();
+            return XLSX.read(data, { type: 'array', cellDates: true });
+        }
+
+        function sheetToAoa(sheet) {
+    return XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, raw: true });
+}
+
+function detectHeaderRow(aoa, needles, maxRows = 250) {
+    const nn = needles.map(n => String(n).toLowerCase());
+    const limit = Math.min(maxRows, aoa.length);
+    for (let r = 0; r < limit; r++) {
+        const row = aoa[r] || [];
+        const low = row.map(v => (v === null || v === undefined) ? '' : String(v).trim().toLowerCase());
+        let hit = 0;
+        for (const n of nn) {
+            if (low.some(cell => cell.includes(n))) hit++;
+        }
+        // require at least half of needles to match and row to have enough non-empty cells
+        const nonEmpty = low.filter(x => x !== '').length;
+        if (hit >= Math.ceil(nn.length / 2) && nonEmpty >= Math.max(3, nn.length)) return r;
+    }
+    return -1;
+}
+
+function aoaToObjects(aoa, headerRow) {
+    const headersRaw = (aoa[headerRow] || []).map(h => (h === null || h === undefined) ? '' : String(h).trim());
+    const headers = headersRaw.map((h, idx) => h !== '' ? h : `__col_${idx}`);
+    const out = [];
+    for (let r = headerRow + 1; r < aoa.length; r++) {
+        const row = aoa[r] || [];
+        // stop if the row is completely empty
+        const hasAny = row.some(v => v !== null && v !== undefined && String(v).trim() !== '');
+        if (!hasAny) continue;
+
+        const obj = {};
+        for (let c = 0; c < headers.length; c++) obj[headers[c]] = row[c] ?? null;
+        out.push(obj);
+    }
+    return out;
+}
+
+function sheetToJson(sheet, headerNeedles) {
+    // Backwards compatible helper used by parsers
+    const aoa = sheetToAoa(sheet);
+    let hr = 0;
+    if (headerNeedles && headerNeedles.length) {
+        const found = detectHeaderRow(aoa, headerNeedles);
+        if (found !== -1) hr = found;
+    }
+    return aoaToObjects(aoa, hr);
+}
+
+        function findHeaderKey(keys, needles) {
+            const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+            const lower = keys.map(k => norm(k));
+            for (const nRaw of needles) {
+                const n = norm(nRaw);
+                if (!n) continue;
+                const idx = lower.findIndex(k => k.includes(n));
+                if (idx !== -1) return keys[idx];
+            }
+            return null;
+        }
+
+function extractPortfolioSummaryXirr(wb) {
+            // Per your rule: pick the LAST numeric value under the "XIRR RETURN %" (or similar) header.
+            // IMPORTANT: In many statements, the header is NOT on row 1 (often row 4+). So we scan the sheet cells.
+            const sheetNames = (wb.SheetNames || []).slice();
+
+            // Prefer sheets that look like summaries
+            sheetNames.sort((a, b) => {
+                const sa = (a || '').toLowerCase();
+                const sb = (b || '').toLowerCase();
+                const score = (s) =>
+                    (s.includes('portfolio') ? 5 : 0) +
+                    (s.includes('summary') ? 4 : 0) +
+                    (s.includes('mutual') ? 2 : 0) +
+                    (s.includes('fund') ? 1 : 0);
+                return score(sb) - score(sa);
+            });
+
+            const normalize = (x) => String(x ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+            let lastErr = null;
+
+            for (const sheetName of sheetNames) {
+                const sh = wb.Sheets[sheetName];
+                if (!sh || !sh['!ref']) continue;
+
+                const range = XLSX.utils.decode_range(sh['!ref']);
+                const maxRowScan = Math.min(range.e.r, range.s.r + 250);
+
+                // Pass 1: strict match (xirr + return + %)
+                let header = null;
+                for (let r = range.s.r; r <= maxRowScan && !header; r++) {
+                    for (let c = range.s.c; c <= range.e.c; c++) {
+                        const addr = XLSX.utils.encode_cell({ r, c });
+                        const cell = sh[addr];
+                        if (!cell || cell.v == null) continue;
+                        const v = normalize(cell.v);
+                        if (v.includes('xirr') && (v.includes('return') || v.includes('ret')) && v.includes('%')) {
+                            header = { r, c };
+                            break;
+                        }
+                    }
+                }
+
+                // Pass 2: looser match (xirr + %)
+                if (!header) {
+                    for (let r = range.s.r; r <= maxRowScan && !header; r++) {
+                        for (let c = range.s.c; c <= range.e.c; c++) {
+                            const addr = XLSX.utils.encode_cell({ r, c });
+                            const cell = sh[addr];
+                            if (!cell || cell.v == null) continue;
+                            const v = normalize(cell.v);
+                            if (v.includes('xirr') && v.includes('%')) {
+                                header = { r, c };
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!header) {
+                    lastErr = `Sheet "${sheetName}": header not found`;
+                    continue;
+                }
+
+                // Scan downward in that column to find the LAST numeric value
+                let last = null;
+                for (let rr = header.r + 1; rr <= range.e.r; rr++) {
+                    const addr = XLSX.utils.encode_cell({ r: rr, c: header.c });
+                    const cell = sh[addr];
+                    if (!cell || cell.v == null) continue;
+
+                    let num = null;
+                    if (typeof cell.v === 'number') {
+                        num = cell.v;
+                    } else if (typeof cell.v === 'string') {
+                        const s = cell.v.replace(/[% ,]/g, '').trim();
+                        if (s) {
+                            const f = parseFloat(s);
+                            if (!Number.isNaN(f)) num = f;
+                        }
+                    }
+
+                    if (num != null) last = num;
+                }
+
+                if (last == null) {
+                    lastErr = `Sheet "${sheetName}": header found but no values below`;
+                    continue;
+                }
+
+                // If value is in decimal (0.12) convert to percent (12)
+                if (last > 0 && last <= 1.5) last = last * 100;
+
+                return last;
+            }
+
+            throw new Error('Could not find client XIRR column/value in the Portfolio Summary workbook. ' + (lastErr ? ('Details: ' + lastErr) : ''));
+        }
+
+        function extractCashflowsFromTxnWb(wb) {
+            // Uses the first sheet; supports both purchases (outflows) and redemptions (inflows)
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            const rows = sheetToJson(sheet);
+            if (!rows.length) throw new Error('Transaction workbook appears empty.');
+
+            const keys = Object.keys(rows[0] || {});
+            const dateKey = findHeaderKey(keys, ['transaction date', 'txn date', 'date']);
+            const amtKey = findHeaderKey(keys, ['total amount', 'amount', 'net amount']);
+            const typeKey = findHeaderKey(keys, ['txn type', 'transaction type', 'type']);
+
+            if (!dateKey || !amtKey) {
+                throw new Error('Transaction workbook must contain a Date column and an Amount column.');
+            }
+
+            const cashflows = [];
+            for (const r of rows) {
+                const d = parseDateFlexible(r[dateKey]);
+                const amtRaw = r[amtKey];
+                if (!d || amtRaw === null || amtRaw === '') continue;
+
+                const amt = Number(amtRaw);
+                if (!isFinite(amt) || amt === 0) continue;
+
+                const inflow = isInflowTxnType(typeKey ? r[typeKey] : '');
+                const signed = inflow ? Math.abs(amt) : -Math.abs(amt);
+                cashflows.push({ date: d, amount: signed });
+            }
+
+            cashflows.sort((a, b) => a.date - b.date);
+            if (cashflows.length < 2) throw new Error('Not enough transactions to compute XIRR.');
+            return cashflows;
+        }
+
+        function extractSeriesFromWb(wb, valueNeedles) {
+            // Finds a sheet with "Date" and the desired value column (e.g., NAV, BSE 500)
+            for (const sheetName of wb.SheetNames) {
+                const rows = sheetToJson(wb.Sheets[sheetName]);
+                if (!rows.length) continue;
+
+                const keys = Object.keys(rows[0] || {});
+                const dateKey = findHeaderKey(keys, ['date']);
+                const valKey = findHeaderKey(keys, valueNeedles);
+
+                if (!dateKey || !valKey) continue;
+
+                const series = [];
+                for (const r of rows) {
+                    const d = parseDateFlexible(r[dateKey]);
+                    const v = r[valKey];
+                    if (!d || v === null || v === '' || isNaN(v)) continue;
+                    series.push({ date: d, value: Number(v) });
+                }
+
+                series.sort((a, b) => a.date - b.date);
+                // De-dup same dates by keeping last
+                const dedup = [];
+                for (const p of series) {
+                    const last = dedup[dedup.length - 1];
+                    if (last && last.date.toDateString() === p.date.toDateString()) dedup[dedup.length - 1] = p;
+                    else dedup.push(p);
+                }
+                if (dedup.length) return dedup;
+            }
+            return [];
+        }
+
+        function buildLookup(series) {
+            const dates = series.map(p => p.date.getTime());
+            const values = series.map(p => p.value);
+
+            function valueOnOrBefore(d) {
+                const t = d.getTime();
+                // binary search last <= t
+                let lo = 0, hi = dates.length - 1, ans = -1;
+                while (lo <= hi) {
+                    const mid = (lo + hi) >> 1;
+                    if (dates[mid] <= t) { ans = mid; lo = mid + 1; }
+                    else hi = mid - 1;
+                }
+                if (ans === -1) return values[0] ?? null; // fallback to first available
+                return values[ans];
+            }
+
+            return { dates, values, valueOnOrBefore };
+        }
+
+        function xirr(cashflows, guess = 0.12) {
+            // Newton-Raphson on XNPV
+            if (!cashflows || cashflows.length < 2) return NaN;
+
+            const cf = cashflows.slice().sort((a, b) => a.date - b.date);
+            const d0 = cf[0].date;
+
+            function npv(rate) {
+                const r = rate;
+                let sum = 0;
+                for (const c of cf) {
+                    const t = (c.date - d0) / (1000 * 60 * 60 * 24) / 365.0;
+                    sum += c.amount / Math.pow(1 + r, t);
+                }
+                return sum;
+            }
+
+            function dnpv(rate) {
+                const r = rate;
+                let sum = 0;
+                for (const c of cf) {
+                    const t = (c.date - d0) / (1000 * 60 * 60 * 24) / 365.0;
+                    sum += (-t) * c.amount / Math.pow(1 + r, t + 1);
+                }
+                return sum;
+            }
+
+            let r = guess;
+            for (let i = 0; i < 80; i++) {
+                const f = npv(r);
+                const fp = dnpv(r);
+                if (!isFinite(f) || !isFinite(fp) || fp === 0) break;
+                const rNext = r - f / fp;
+                if (!isFinite(rNext)) break;
+                if (Math.abs(rNext - r) < 1e-10) { r = rNext; break; }
+                r = rNext;
+            }
+            return r;
+        }
+
+        function computeIndexXirrFromCashflows(cashflows, series) {
+            const lookup = buildLookup(series);
+            const lastPoint = series[series.length - 1];
+            let units = 0;
+
+            for (const cf of cashflows) {
+                const px = lookup.valueOnOrBefore(cf.date);
+                if (!px || !isFinite(px)) continue;
+
+                if (cf.amount < 0) units += (-cf.amount) / px;
+                else units -= (cf.amount) / px;
+            }
+
+            const terminalValue = units * (lastPoint?.value ?? 0);
+            const full = cashflows.slice();
+            full.push({ date: lastPoint.date, amount: terminalValue });
+
+            const r = xirr(full, 0.12);
+            return r * 100; // percent
+        }
+
+        function computePeriodMetrics(series, benchmarkSeries) {
+            const out = {};
+            const end = series[series.length - 1].date.getTime();
+
+            const periods = { '3M': {m:3}, '6M': {m:6}, '1Y': {y:1}, '3Y': {y:3} };
+
+            // build aligned benchmark lookup for beta/alpha
+            const benchByDate = new Map();
+            if (benchmarkSeries && benchmarkSeries.length) {
+                for (const p of benchmarkSeries) benchByDate.set(p.date.toISOString().slice(0, 10), p.value);
+            }
+
+            function sliceSince(period) {
+                const endDate = series[series.length - 1].date;
+                const cutoffDate = new Date(endDate.getTime());
+                if (period.m) cutoffDate.setMonth(cutoffDate.getMonth() - period.m);
+                if (period.y) cutoffDate.setFullYear(cutoffDate.getFullYear() - period.y);
+                const sliced = series.filter(p => p.date >= cutoffDate);
+                // ensure at least 2 points
+                return sliced.length >= 2 ? sliced : series.slice(Math.max(0, series.length - 2));
+            }
+
+            function dailyReturns(points) {
+                const rets = [];
+                for (let i = 1; i < points.length; i++) {
+                    const prev = points[i - 1].value;
+                    const cur = points[i].value;
+                    if (prev && isFinite(prev) && cur && isFinite(cur)) rets.push(cur / prev - 1);
+                }
+                return rets;
+            }
+
+            function maxDrawdown(points) {
+                let peak = -Infinity;
+                let mdd = 0;
+                for (const p of points) {
+                    peak = Math.max(peak, p.value);
+                    if (peak > 0) mdd = Math.min(mdd, p.value / peak - 1);
+                }
+                return mdd * 100;
+            }
+
+            function cagr(points) {
+                const start = points[0].value;
+                const endV = points[points.length - 1].value;
+                const days = (points[points.length - 1].date - points[0].date) / (1000 * 60 * 60 * 24);
+                if (!start || !endV || days <= 0) return NaN;
+                return (Math.pow(endV / start, 365.25 / days) - 1) * 100;
+            }
+
+            function std(arr) {
+                if (!arr.length) return NaN;
+                const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+                const v = arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (arr.length - 1 || 1);
+                return Math.sqrt(v);
+            }
+
+            for (const [k, period] of Object.entries(periods)) {
+                const pts = sliceSince(period);
+                const c = cagr(pts);
+                const rets = dailyReturns(pts);
+                const vol = std(rets) * Math.sqrt(252) * 100; // %
+                const sharpe = (c / 100) / (vol / 100); // rf=0
+                // Sortino (matches many dashboards: downside series includes zeros; downside deviation = std of downside series)
+                const downside = rets.map(r => Math.min(0, r));
+                const downDev = std(downside) * Math.sqrt(252) * 100;
+                const sortino = (c / 100) / (downDev / 100);
+
+                // Beta/Alpha vs benchmark
+                let beta = NaN, alpha = NaN;
+                if (benchmarkSeries && benchmarkSeries.length) {
+                    const benchPts = pts
+                        .map(p => {
+                            const d = p.date.toISOString().slice(0, 10);
+                            const bv = benchByDate.get(d);
+                            return bv ? { date: p.date, value: bv } : null;
+                        })
+                        .filter(Boolean);
+
+                    const rp = dailyReturns(pts);
+                    const rb = dailyReturns(benchPts);
+                    const n = Math.min(rp.length, rb.length);
+                    if (n >= 20) {
+                        const rp2 = rp.slice(-n);
+                        const rb2 = rb.slice(-n);
+                        const meanp = rp2.reduce((a,b)=>a+b,0)/n;
+                        const meanb = rb2.reduce((a,b)=>a+b,0)/n;
+                        let cov=0, varb=0;
+                        for (let i=0;i<n;i++){
+                            cov += (rp2[i]-meanp)*(rb2[i]-meanb);
+                            varb += Math.pow(rb2[i]-meanb,2);
+                        }
+                        cov /= (n-1);
+                        varb /= (n-1);
+                        beta = varb ? cov/varb : NaN;
+
+                        // Jensen alpha annualized
+                        const dailyAlpha = meanp - (beta * meanb);
+                        alpha = dailyAlpha * 252 * 100;
+                    }
+                }
+
+                out[k] = {
+                    cagr: c,
+                    vol: vol,
+                    sharpe: sharpe,
+                    sortino: sortino,
+                    alpha: alpha,
+                    beta: beta,
+                    maxDD: maxDrawdown(pts)
+                };
+            }
+
+            return out;
+        }
+
+        function computeBenchmarkMetrics(series) {
+            const m = computePeriodMetrics(series, series);
+            // Override beta/alpha for benchmark vs itself
+            for (const k of Object.keys(m)) {
+                m[k].beta = 1;
+                m[k].alpha = 0;
+            }
+            return m;
+        }
+
+        function updateCagrComparisonTable() {
+            // client uses existing static clientMetrics (unless you add portfolio NAV history later)
+            const c1 = clientMetrics?.['1Y']?.cagr;
+            const c3 = clientMetrics?.['3Y']?.cagr;
+
+            const m1 = fincartMetrics?.['1Y']?.cagr;
+            const m3 = fincartMetrics?.['3Y']?.cagr;
+
+            const b1 = benchmarkMetrics?.['1Y']?.cagr;
+            const b3 = benchmarkMetrics?.['3Y']?.cagr;
+
+            const set = (id, v) => {
+                const el = document.getElementById(id);
+                if (el && v !== null && v !== undefined && isFinite(v)) el.textContent = formatPct(v);
+            };
+
+            set('clientCagr1Y', c1);
+            set('clientCagr3Y', c3);
+            set('modelCagr1Y', m1);
+            set('modelCagr3Y', m3);
+            set('bseCagr1Y', b1);
+            set('bseCagr3Y', b3);
+        }
+
+
+        // ---------------------------
+        // Portfolio composition (Weights + Data + Common Holdings)
+        // ---------------------------
+
+        function cleanNumber(v) {
+            if (v === null || v === undefined || v === '') return null;
+            if (typeof v === 'number' && isFinite(v)) return v;
+            const s = String(v).replace(/[% ,]/g, '').trim();
+            if (!s || s === '-') return null;
+            const n = parseFloat(s);
+            return isFinite(n) ? n : null;
+        }
+
+        
+    // --- helper: escape HTML to prevent breaking DOM when inserting dynamic strings ---
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function normalizeFundName(name) {
+            // Normalize scheme names across files. Also expands common abbreviations seen in weight sheets.
+            return String(name || '')
+                .toLowerCase()
+                .replace(/\(.*?\)/g, ' ')
+                // expand common abbreviations
+                .replace(/\bgld\b/g, ' gold ')
+                .replace(/\bslvr\b/g, ' silver ')
+                .replace(/\bpasv\b/g, ' passive ')
+                .replace(/\bpsv\b/g, ' passive ')
+                .replace(/\bidx\b/g, ' index ')
+                .replace(/\benh\b/g, ' enhanced ')
+                .replace(/\bval\b/g, ' value ')
+                .replace(/\bstck\b/g, ' stock ')
+                .replace(/\bmrkt\b/g, ' market ')
+                .replace(/\bspcf\b/g, ' specific ')
+                .replace(/\beq\b/g, ' equity ')
+                .replace(/\btlt\b/g, ' total ')
+                .replace(/[^a-z0-9]+/g, ' ')
+                // remove generic tokens
+                .replace(/\b(fund|plan|direct|regular|growth|option|idcw|dividend|payout|reinvest|dir|gr|reg|fd|scheme)\b/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function tokenSet(s) {
+            return new Set(normalizeFundName(s).split(' ').filter(t => t.length > 1));
+        }
+
+        function bestTokenMatch(name, candidates, minScore = 0.35) {
+            const aTokens = Array.from(tokenSet(name));
+            if (!aTokens.length) return null;
+
+            // Enforce key tokens: if the query contains these, the candidate must contain them too.
+            const mustHave = ['gold', 'silver', 'passive', 'fof', 'etf', 'index', 'infra', 'infrastructure', 'psu', 'elss', 'nifty'];
+            const aMust = mustHave.filter(t => aTokens.includes(t));
+
+            let best = null;
+            let bestScore = -1;
+
+            for (const cand of candidates) {
+                const b = tokenSet(cand);
+                if (!b.size) continue;
+
+                // hard constraint for must-have tokens
+                let ok = true;
+                for (const t of aMust) {
+                    if (!b.has(t)) { ok = false; break; }
+                }
+                if (!ok) continue;
+
+                // Jaccard similarity
+                let inter = 0;
+                for (const t of aTokens) if (b.has(t)) inter++;
+                const union = aTokens.length + b.size - inter;
+                const score = union ? (inter / union) : 0;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = cand;
+                }
+            }
+            return bestScore >= minScore ? best : null;
+        }
+
+        function parseWeightsWorkbook(wb) {
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const aoa = sheetToAoa(sheet);
+    if (!aoa.length) throw new Error('Weights workbook appears empty.');
+
+    let headerRow = detectHeaderRow(aoa, ['name', 'market value', 'portfolio weight']);
+    if (headerRow === -1) headerRow = detectHeaderRow(aoa, ['name', 'portfolio weight']);
+    if (headerRow === -1) {
+        throw new Error('Could not locate header row in Weights workbook (expected columns like Name, Market Value, Portfolio Weight%).');
+    }
+
+    const rows = aoaToObjects(aoa, headerRow);
+    if (!rows.length) throw new Error('No holdings rows found in Weights workbook.');
+
+    const keys = Object.keys(rows[0] || {});
+    const kName = findHeaderKey(keys, ['name']);
+    const kMV = findHeaderKey(keys, ['market value']);
+    const kW = findHeaderKey(keys, ['portfolio weight']);
+    if (!kName || !kMV || !kW) {
+        throw new Error('Weights workbook header detected but required columns missing (need Name, Market Value, Portfolio Weight%).');
+    }
+
+    const out = [];
+    for (const r of rows) {
+        const nm = String(r[kName] ?? '').trim();
+        if (!nm) continue;
+        const nmLower = nm.toLowerCase();
+        if (nmLower.includes('aggregate') || nmLower.includes('average') || nmLower.includes('benchmark')) continue;
+
+        const mv = cleanNumber(r[kMV]);
+        const w = cleanNumber(r[kW]);
+        if (!isFinite(w) || w <= 0) continue;
+
+        out.push({ name: nm, marketValue: mv, weight: w });
+    }
+
+    if (!out.length) throw new Error('No holdings found in Weights workbook.');
+    return out;
+}
+
+function parseDataWorkbook(wb) {
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            const aoa = sheetToAoa(sheet);
+
+            // Data export often has headers not on row 1. We must locate the *real* header row (the one that contains
+            // Legal Name + multiple metric columns like Tot Ret / Std Dev, not a banner row).
+            function findDataHeaderRow() {
+                const limit = Math.min(250, aoa.length);
+                for (let r = 0; r < limit; r++) {
+                    const row = aoa[r] || [];
+                    const low = row.map(v => (v === null || v === undefined) ? '' : String(v).trim().toLowerCase().replace(/\s+/g,' '));
+                    const nonEmpty = low.filter(x => x !== '').length;
+                    const hasLegal = low.some(c => c.includes('legal name'));
+                    const hasTotRet = low.some(c => c.includes('tot ret'));
+                    const hasStd = low.some(c => c.includes('standard deviation'));
+                    const hasSharpe = low.some(c => c.includes('sharpe'));
+                    // require Legal Name + at least ONE metric family and enough columns
+                    if (hasLegal && (hasTotRet || hasStd || hasSharpe) && nonEmpty >= 6) return r;
+                }
+                return -1;
+            }
+
+            let headerRow = findDataHeaderRow();
+            if (headerRow === -1) headerRow = detectHeaderRow(aoa, ['legal name', 'tot ret 12 mo', 'standard deviation']);
+            if (headerRow === -1) headerRow = detectHeaderRow(aoa, ['legal name', 'tot ret']);
+            if (headerRow === -1) headerRow = detectHeaderRow(aoa, ['legal name']);
+
+            const rows = aoaToObjects(aoa, Math.max(0, headerRow));
+if (!rows.length) throw new Error('Data workbook appears empty or header row not detected.');
+
+const keys = Object.keys(rows[0] || {});
+            const kName = findHeaderKey(keys, ['legal name', 'name']);
+            if (!kName) throw new Error('Data workbook must contain a "Legal Name" column.');
+
+            const kRet3M = findHeaderKey(keys, ['tot ret 3 mo']);
+            const kRet6M = findHeaderKey(keys, ['tot ret 6 mo']);
+            const kRet1Y = findHeaderKey(keys, ['tot ret 12 mo', 'tot ret 1 yr']);
+            const kRet3Y = findHeaderKey(keys, ['tot ret 3 yr annlzd']);
+            const kStd1Y = findHeaderKey(keys, ['standard deviation 1 yr']);
+            const kStd3Y = findHeaderKey(keys, ['standard deviation 3 yr']);
+            const kAlpha1Y = findHeaderKey(keys, ['alpha 1 yr']);
+            const kAlpha3Y = findHeaderKey(keys, ['alpha 3 yr']);
+            const kBeta1Y = findHeaderKey(keys, ['beta 1 yr']);
+            const kBeta3Y = findHeaderKey(keys, ['beta 3 yr']);
+            const kMdd1Y = findHeaderKey(keys, ['max drawdown 1 yr']);
+            const kMdd3Y = findHeaderKey(keys, ['max drawdown 3 yr']);
+            const kSharpe1Y = findHeaderKey(keys, ['sharpe ratio 1 yr']);
+            const kSharpe3Y = findHeaderKey(keys, ['sharpe ratio 3 yr']);
+            const kSort1Y = findHeaderKey(keys, ['sortino ratio 1 yr']);
+            const kSort3Y = findHeaderKey(keys, ['sortino  ratio  3 yr', 'sortino ratio 3 yr']);
+
+            const kCapL = findHeaderKey(keys, ['large cap %']);
+            const kCapM = findHeaderKey(keys, ['mid cap %']);
+            const kCapS = findHeaderKey(keys, ['small cap %']);
+
+            const sectorLabels = [
+                'Basic Materials', 'Consumer Cyclical', 'Financial Services', 'Real Estate',
+                'Communication Services', 'Industrials', 'Technology', 'Consumer Defensive',
+                'Healthcare', 'Utilities'
+            ];
+            const sectorKeys = sectorLabels.map(lbl => {
+                const k = findHeaderKey(keys, [lbl.toLowerCase()]);
+                return k;
+            });
+
+            const candidates = [];
+            const dataByNorm = {};
+
+            for (const r of rows) {
+                const name = r[kName];
+                if (!name) continue;
+                const nm = String(name).trim();
+                const item = {
+                    name: nm,
+                    ret3M: cleanNumber(kRet3M ? r[kRet3M] : null),
+                    ret6M: cleanNumber(kRet6M ? r[kRet6M] : null),
+                    ret1Y: cleanNumber(kRet1Y ? r[kRet1Y] : null),
+                    ret3Y: cleanNumber(kRet3Y ? r[kRet3Y] : null),
+                    std1Y: cleanNumber(kStd1Y ? r[kStd1Y] : null),
+                    std3Y: cleanNumber(kStd3Y ? r[kStd3Y] : null),
+                    sharpe1Y: cleanNumber(kSharpe1Y ? r[kSharpe1Y] : null),
+                    sharpe3Y: cleanNumber(kSharpe3Y ? r[kSharpe3Y] : null),
+                    sortino1Y: cleanNumber(kSort1Y ? r[kSort1Y] : null),
+                    sortino3Y: cleanNumber(kSort3Y ? r[kSort3Y] : null),
+                    alpha1Y: cleanNumber(kAlpha1Y ? r[kAlpha1Y] : null),
+                    alpha3Y: cleanNumber(kAlpha3Y ? r[kAlpha3Y] : null),
+                    beta1Y: cleanNumber(kBeta1Y ? r[kBeta1Y] : null),
+                    beta3Y: cleanNumber(kBeta3Y ? r[kBeta3Y] : null),
+                    mdd1Y: cleanNumber(kMdd1Y ? r[kMdd1Y] : null),
+                    mdd3Y: cleanNumber(kMdd3Y ? r[kMdd3Y] : null),
+                    capL: cleanNumber(kCapL ? r[kCapL] : null),
+                    capM: cleanNumber(kCapM ? r[kCapM] : null),
+                    capS: cleanNumber(kCapS ? r[kCapS] : null),
+                    sectors: {}
+                };
+
+                for (let i = 0; i < sectorLabels.length; i++) {
+                    const key = sectorKeys[i];
+                    item.sectors[sectorLabels[i]] = cleanNumber(key ? r[key] : null);
+                }
+
+                candidates.push(nm);
+                dataByNorm[normalizeFundName(nm)] = item;
+            }
+
+            return { candidates, dataByNorm, sectorLabels };
+        }
+
+        function computeInvestedByFundFromTxn(wb) {
+            // Supports transaction workbooks that may contain:
+            // - Only a single sheet with mixed txn types
+            // - A "Purchase" sheet and optionally a "Sell" sheet (as in your statement export)
+            const byNorm = {};
+            const candidates = [];
+
+            function addCandidate(nm, norm) {
+                if (!(norm in byNorm)) candidates.push(nm);
+            }
+
+            function processSheet(sheetName, sheet, forcedSign /* +1 for purchases, -1 for sells, null for infer */) {
+                const rows = sheetToJson(sheet);
+                if (!rows.length) return;
+
+                const keys = Object.keys(rows[0] || {});
+                const kScheme = findHeaderKey(keys, ['scheme name', 'scheme']);
+                const kAmt = findHeaderKey(keys, ['total amount', 'amount', 'net amount']);
+                const kType = findHeaderKey(keys, ['txn type', 'type', 'transaction type']);
+                if (!kScheme || !kAmt) return;
+
+                for (const r of rows) {
+                    const scheme = r[kScheme];
+                    const amtRaw = r[kAmt];
+                    if (!scheme || amtRaw === null || amtRaw === '' || isNaN(amtRaw)) continue;
+
+                    const amt = Math.abs(Number(amtRaw));
+                    if (!isFinite(amt) || amt === 0) continue;
+
+                    let signed;
+                    if (forcedSign === 1) {
+                        signed = amt;          // purchases add
+                    } else if (forcedSign === -1) {
+                        signed = -amt;         // sells/redemptions subtract
+                    } else {
+                        // Fallback for generic statements: infer sign from txn type.
+                        // NOTE: isInflowTxnType() here is actually an "isOutflow" detector (redemption/switch-out/etc).
+                        const isOutflow = isInflowTxnType(kType ? r[kType] : '');
+                        signed = isOutflow ? -amt : amt;
+                    }
+
+                    const nm = String(scheme).trim();
+                    const norm = normalizeFundName(nm);
+                    addCandidate(nm, norm);
+                    byNorm[norm] = (byNorm[norm] || 0) + signed;
+                }
+            }
+
+            const names = (wb.SheetNames || []).map(s => String(s));
+            if (!names.length) return { candidates: [], byNorm: {} };
+
+            // Prefer explicit Purchase/Sell sheets if present
+            const nameLower = names.map(s => s.toLowerCase());
+            const idxPurchase = nameLower.findIndex(s => s.includes('purchase'));
+            const idxSell = nameLower.findIndex(s => s.includes('sell'));
+
+            if (idxPurchase !== -1) {
+                const sName = names[idxPurchase];
+                processSheet(sName, wb.Sheets[sName], 1);
+            }
+
+            if (idxSell !== -1) {
+                const sName = names[idxSell];
+                processSheet(sName, wb.Sheets[sName], -1);
+            }
+
+            // If neither Purchase nor Sell was found, process every sheet and infer by txn type
+            if (idxPurchase === -1 && idxSell === -1) {
+                for (const sName of names) {
+                    const sheet = wb.Sheets[sName];
+                    if (!sheet) continue;
+                    processSheet(sName, sheet, null);
+                }
+            }
+
+            return { candidates, byNorm };
+        }
+
+        function lookupByName(name, pool) {
+            const norm = normalizeFundName(name);
+            if (pool.byNorm && pool.byNorm[norm] != null) return pool.byNorm[norm];
+            const m = bestTokenMatch(name, pool.candidates || []);
+            if (!m) return null;
+            const v = pool.byNorm[normalizeFundName(m)];
+            return v != null ? v : null;
+        }
+
+        function lookupDataItem(name, dataPool) {
+            const norm = normalizeFundName(name);
+            if (dataPool.dataByNorm[norm]) return dataPool.dataByNorm[norm];
+            const m = bestTokenMatch(name, dataPool.candidates);
+            if (!m) return null;
+            return dataPool.dataByNorm[normalizeFundName(m)] || null;
+        }
+
+        function buildClientHoldings(weights, investedPool, dataPool) {
+            return weights.map(w => {
+                const invested = lookupByName(w.name, investedPool);
+                const d = lookupDataItem(w.name, dataPool);
+
+                const investedValue = (invested != null && isFinite(invested)) ? Number(invested) : null;
+                const marketValue = (w.marketValue != null && isFinite(w.marketValue)) ? Number(w.marketValue) : 0;
+
+                // Keep the holdings section internally consistent:
+                // - "Allocated Capital" is the base used for totals/summary
+                // - Gains are computed from the same base
+                // Fallback: if we can't match invested value for a fund, treat allocated = marketValue (gains = 0),
+                // instead of producing misleading negatives/positives.
+                const allocatedCapital = (investedValue != null) ? investedValue : marketValue;
+                const gains = (investedValue != null) ? (marketValue - investedValue) : 0;
+
+                return {
+                    name: w.name,
+                    weight: Number(w.weight.toFixed(2)),
+                    allocatedCapital: allocatedCapital,
+                    investedValue: investedValue, // keep raw (can be negative) for debugging / future use
+                    marketValue: marketValue,
+                    gains: (gains != null && isFinite(gains)) ? gains : 0,
+                    largeCap: d && d.capL != null ? d.capL : 0,
+                    midCap: d && d.capM != null ? d.capM : 0,
+                    smallCap: d && d.capS != null ? d.capS : 0
+                };
+            });
+        }
+
+        function weightedAvg(weights, getVal) {
+            let num = 0, den = 0;
+            for (const w of weights) {
+                const v = getVal(w);
+                if (v == null || !isFinite(v)) continue;
+                num += w.weight * v;
+                den += w.weight;
+            }
+            return den ? (num / den) : null;
+        }
+
+        function computeClientPortfolioMetrics(weights, dataPool) {
+            // Use Morningstar fund-level metrics weighted by portfolio weights.
+            // For 3M/6M, we derive risk metrics from 1Y (scaled), because Data workbook provides 1Y/3Y/5Y risk stats.
+            const periods = {
+                '3M': { months: 3 },
+                '6M': { months: 6 },
+                '1Y': { months: 12 },
+                '3Y': { months: 36 }
+            };
+
+            const out = {};
+            for (const [p, meta] of Object.entries(periods)) {
+                const months = meta.months;
+
+                const cagrKey = (p === '3M') ? 'ret3M' : (p === '6M') ? 'ret6M' : (p === '1Y') ? 'ret1Y' : 'ret3Y';
+
+                let cagr = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    return d ? d[cagrKey] : null;
+                });
+
+                // For 3M/6M, Morningstar provides total return over the window; convert to annualized CAGR for apples-to-apples
+                // comparison with time-series CAGR used for Model/BSE.
+                if ((p === '3M' || p === '6M') && cagr != null && isFinite(cagr)) {
+                    const t = months / 12;
+                    cagr = (Math.pow(1 + (cagr / 100), 1 / t) - 1) * 100;
+                }
+
+                const baseVol = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.std3Y : d.std1Y;
+                });
+
+                const baseSharpe = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.sharpe3Y : d.sharpe1Y;
+                });
+
+                const baseSortino = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.sortino3Y : d.sortino1Y;
+                });
+
+                const baseAlpha = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.alpha3Y : d.alpha1Y;
+                });
+
+                const beta = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.beta3Y : d.beta1Y;
+                });
+
+                const maxDD = weightedAvg(weights, w => {
+                    const d = lookupDataItem(w.name, dataPool);
+                    if (!d) return null;
+                    return (p === '3Y') ? d.mdd3Y : d.mdd1Y;
+                });
+
+                // Scale 1Y risk metrics down for 3M/6M where needed (avoid fake precision if base is missing)
+                let vol = baseVol;
+                let sharpe = baseSharpe;
+                let sortino = baseSortino;
+                let alpha = baseAlpha;
+
+                if (p === '3M' || p === '6M') {
+                    const t = months / 12;
+                    if (vol != null) vol = vol * Math.sqrt(t);
+                    if (sharpe != null) sharpe = sharpe * Math.sqrt(t);
+                    if (sortino != null) sortino = sortino * Math.sqrt(t);
+                    if (alpha != null) alpha = alpha * t;
+                }
+
+                out[p] = {
+                    cagr: cagr,
+                    vol: vol,
+                    sharpe: sharpe,
+                    sortino: sortino,
+                    alpha: alpha,
+                    beta: beta,
+                    maxDD: maxDD
+                };
+            }
+            return out;
+        }
+
+        
+function computeSectorAllocation(weights, dataPool) {
+    // Portfolio-level sector allocation:
+    // For each sector s: sum_i (weight_i% * sector_i,s%) / 100
+    // This yields sector contribution as % of total portfolio.
+    const labels = dataPool.sectorLabels.slice();
+    const values = labels.map(lbl => {
+        let sum = 0;
+        for (const w of weights) {
+            const d = lookupDataItem(w.name, dataPool);
+            const sVal = d && d.sectors ? d.sectors[lbl] : null;
+            if (sVal == null || !isFinite(sVal)) continue;
+            sum += (w.weight * sVal) / 100;
+        }
+        return sum;
+    });
+    return { labels, values };
+}
+
+
+        function parseOverlapMatrixWorkbook(wb) {
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, raw: true });
+            if (!rows.length) return [];
+
+            const funds = [];
+            const fundRows = [];
+            for (const r of rows) {
+                const idx = r && r.length ? r[0] : null;
+                const nm = r && r.length > 1 ? r[1] : null;
+                if (typeof idx === 'number' && nm && String(nm).trim() && !String(nm).toLowerCase().includes('common holdings')) {
+                    funds.push(String(nm).trim());
+                    fundRows.push(r);
+                }
+            }
+            const n = funds.length;
+            if (!n) return [];
+
+            // numeric matrix
+            const mat = Array.from({ length: n }, () => Array.from({ length: n }, () => null));
+            for (let i = 0; i < n; i++) mat[i][i] = 1.0;
+
+            for (let i = 0; i < n; i++) {
+                const r = fundRows[i];
+                for (let j = 0; j <= i; j++) {
+                    const cell = r[2 + j]; // col2 -> fund1, col3 -> fund2, ...
+                    const v = cleanNumber(cell);
+                    if (v == null) continue;
+                    mat[i][j] = v;
+                    mat[j][i] = v;
+                }
+            }
+
+            // build display matrix (lower triangle, '-' above)
+            const out = [];
+            for (let i = 0; i < n; i++) {
+                const row = [funds[i]];
+                for (let j = 0; j < n; j++) {
+                    if (j > i) row.push('-');
+                    else row.push((mat[i][j] != null && isFinite(mat[i][j])) ? Number(mat[i][j]).toFixed(2) : '-');
+                }
+                out.push(row);
+            }
+            return out;
+        }
+
+        // Chart instances (so we can destroy/rebuild on new uploads)
+        let holdingsPieChartInstance = null;
+        let sectorChartInstance = null;
+
+        
+        async function processUploadedFilesAndRender() {
+            const summaryWb = await readWorkbook(uploadedFiles.summary);
+            const txnWb = await readWorkbook(uploadedFiles.transaction);
+
+            const pmsWb = await readWorkbook(uploadedFiles.pmsNav);
+            const bseWb = await readWorkbook(uploadedFiles.bse);
+
+            const weightsWb = await readWorkbook(uploadedFiles.weights);
+            const dataWb = await readWorkbook(uploadedFiles.data);
+            const commonHoldingsWb = await readWorkbook(uploadedFiles.holdings);
+
+            // 1) Client XIRR (directly from Portfolio Summary sheet)
+            const clientXirr = extractPortfolioSummaryXirr(summaryWb);
+
+            // 2) Cashflows from transaction statement (client transactions)
+            const cashflows = extractCashflowsFromTxnWb(txnWb);
+
+            // 3) Series extraction (datewise NAV/price)
+            // Support either separate files OR a combined file that has both NAV and BSE 500 columns.
+            let modelSeries = extractSeriesFromWb(pmsWb, ['nav']);
+            let bseSeries = extractSeriesFromWb(bseWb, ['bse 500', 'bse500', 'bse']);
+
+            if (!modelSeries.length) modelSeries = extractSeriesFromWb(pmsWb, ['pms', 'model']);
+            if (!bseSeries.length) bseSeries = extractSeriesFromWb(bseWb, ['price', 'close', 'value']);
+
+            // If benchmark series not found in the benchmark workbook, try the PMS workbook (combined template)
+            if (!bseSeries.length) bseSeries = extractSeriesFromWb(pmsWb, ['bse 500', 'bse500', 'bse']);
+
+            if (!modelSeries.length) throw new Error('Could not find a Date + NAV column in the PMS/Model NAV workbook.');
+            if (!bseSeries.length) throw new Error('Could not find a Date + BSE 500 column in the Benchmark workbook.');
+
+            // 4) Benchmark/model XIRR using same cashflows (units simulation)
+            const modelXirr = computeIndexXirrFromCashflows(cashflows, modelSeries);
+            const bseXirr = computeIndexXirrFromCashflows(cashflows, bseSeries);
+
+            // 5) Update top XIRR cards
+            const clientEl = document.getElementById('clientXirrDisplay');
+            const modelEl = document.getElementById('modelXirrDisplay');
+            const bseEl = document.getElementById('bseXirrDisplay');
+
+            if (clientEl) clientEl.textContent = formatPct(clientXirr);
+            if (modelEl) modelEl.textContent = formatPct(modelXirr);
+            if (bseEl) bseEl.textContent = formatPct(bseXirr);
+
+            // 6) Compute model + benchmark risk metrics from time series
+            fincartMetrics = computePeriodMetrics(modelSeries, bseSeries);
+            benchmarkMetrics = computeBenchmarkMetrics(bseSeries);
+
+            // 7) Client portfolio composition + metrics (from Weights + Data + Common Holdings)
+            const weights = parseWeightsWorkbook(weightsWb);
+            const dataPool = parseDataWorkbook(dataWb);
+            window._weights = weights;
+            window._dataPool = dataPool;
+            calculateMarketCapAllocationDynamic(weights, dataPool);
+            const investedPool = computeInvestedByFundFromTxn(txnWb);
+
+            clientHoldings = buildClientHoldings(weights, investedPool, dataPool);
+            clientMetrics = computeClientPortfolioMetrics(weights, dataPool);
+
+            sectorData = computeSectorAllocation(weights, dataPool);
+            overlapMatrix = parseOverlapMatrixWorkbook(commonHoldingsWb);
+
+            // 8) Update CAGR comparison table + performance metrics table
+            updateCagrComparisonTable();
+            updateMetricsTable();
+            // Allow re-uploading the same filenames by clearing input values
+            try {
+                ['txnUpload','weightsUpload','dataUpload','commonHoldingsUpload','pmsNavUpload','bsePriceUpload','portfolioSummaryUpload'].forEach(id=>{
+                    const el=document.getElementById(id);
+                    if (el) el.value='';
+                });
+            } catch(e) {}
+
+        }
+
+
+
+        // Client Portfolio Data with Market Cap percentages (from Excel data file)
+                let clientHoldings = [];
+
+
+                let clientMetrics = {};
+
+
+        let fincartMetrics = {
+            '3M': {cagr: -4.61478, vol: 13.009273, sharpe: -0.776129, sortino: -1.143401, alpha: -2.415124, beta: 0.970693, maxDD: -5.906504},
+            '6M': {cagr: 6.39522, vol: 10.960142, sharpe: 0.062085, sortino: 0.09295, alpha: 0.460888, beta: 0.824395, maxDD: -6.67522},
+            '1Y': {cagr: 9.009388, vol: 11.352444, sharpe: 0.286219, sortino: 0.447935, alpha: 2.081296, beta: 0.755525, maxDD: -7.479976},
+            '3Y': {cagr: 21.518637, vol: 10.424885, sharpe: 1.394487, sortino: 2.071683, alpha: 7.685921, beta: 0.712434, maxDD: -10.358325}
+        };
+
+        let benchmarkMetrics = {
+            '3M': {cagr: -2.212632, vol: 10.860783, sharpe: -0.728647, sortino: -1.213231, alpha: 0, beta: 1, maxDD: -5.792844},
+            '6M': {cagr: 6.065292, vol: 10.07656, sharpe: 0.026432, sortino: 0.043944, alpha: 0, beta: 1, maxDD: -5.792844},
+            '1Y': {cagr: 7.090157, vol: 12.464343, sharpe: 0.124028, sortino: 0.207954, alpha: 0, beta: 1, maxDD: -8.668282},
+            '3Y': {cagr: 15.5926, vol: 12.878338, sharpe: 0.746754, sortino: 1.142637, alpha: 0, beta: 1, maxDD: -18.962171}
+        };
+
+        const annualReturns = [
+            {
+                "year": 2015,
+                "start": "2015-01-01",
+                "end": "2015-12-31",
+                "model": 5.91,
+                "bse": -1.03,
+                "diff": 6.93
+            },
+            {
+                "year": 2016,
+                "start": "2016-01-04",
+                "end": "2016-12-30",
+                "model": 13.15,
+                "bse": 5.19,
+                "diff": 7.95
+            },
+            {
+                "year": 2017,
+                "start": "2017-01-02",
+                "end": "2017-12-29",
+                "model": 29.33,
+                "bse": 35.49,
+                "diff": -6.16
+            },
+            {
+                "year": 2018,
+                "start": "2018-01-01",
+                "end": "2018-12-31",
+                "model": 3.25,
+                "bse": -2.65,
+                "diff": 5.89
+            },
+            {
+                "year": 2019,
+                "start": "2019-01-01",
+                "end": "2019-12-31",
+                "model": 14.12,
+                "bse": 7.41,
+                "diff": 6.72
+            },
+            {
+                "year": 2020,
+                "start": "2020-01-01",
+                "end": "2020-12-31",
+                "model": 25.39,
+                "bse": 16.6,
+                "diff": 8.79
+            },
+            {
+                "year": 2021,
+                "start": "2021-01-01",
+                "end": "2021-12-31",
+                "model": 26.82,
+                "bse": 29.48,
+                "diff": -2.67
+            },
+            {
+                "year": 2022,
+                "start": "2022-01-03",
+                "end": "2022-12-30",
+                "model": 4.9,
+                "bse": 1.93,
+                "diff": 2.97
+            },
+            {
+                "year": 2023,
+                "start": "2023-01-02",
+                "end": "2023-12-29",
+                "model": 29.69,
+                "bse": 24.26,
+                "diff": 5.42
+            },
+            {
+                "year": 2024,
+                "start": "2024-01-01",
+                "end": "2024-12-31",
+                "model": 27.16,
+                "bse": 14.3,
+                "diff": 12.85
+            },
+            {
+                "year": 2025,
+                "start": "2025-01-01",
+                "end": "2025-12-31",
+                "model": 11.01,
+                "bse": 5.92,
+                "diff": 5.09
+            },
+            {
+                "year": 2026,
+                "start": "2026-01-01",
+                "end": "2026-02-05",
+                "model": -0.07,
+                "bse": -2.14,
+                "diff": 2.07
+            }
+        ];
+
+                let overlapMatrix = [];
+
+
+                let sectorData = { labels: [], values: [] };
+
+        let currentPeriod = '3Y';
+
+        // METRIC DEFINITIONS FOR TOOLTIPS
+        const metricDefinitions = {
+            'CAGR': 'Compound Annual Growth Rate: The mean annual growth rate of an investment over a specified period.',
+            'Sharpe Ratio': 'Measures risk-adjusted performance; higher is better. (Return - Risk-Free Rate) / Std Dev.',
+            'Volatility': 'A statistical measure of the dispersion of returns for a given security or market index.',
+            'Max Drawdown': 'The maximum observed loss from a peak to a trough of a portfolio, before a new peak is attained.',
+            'Alpha': 'A measure of the performance on a risk-adjusted basis relative to a benchmark.',
+            'Beta': 'A measure of the volatility or systematic risk of a security or portfolio compared to the market.',
+            'Sortino Ratio': 'A variation of the Sharpe ratio that differentiates harmful volatility from total overall volatility.'
+        };
+
+        function loadAnnualReturnsTable() {
+            const tbody = document.getElementById('annualReturnsTableBody');
+            if (!tbody || typeof annualReturns === 'undefined') return;
+
+            // Filter for years 2020 to 2025 only
+            const filteredReturns = annualReturns.filter(r => r.year >= 2020 && r.year <= 2025);
+
+            tbody.innerHTML = filteredReturns.map(row => {
+                const label = (row.year === 2026) ? `${row.year} (YTD)` : `${row.year}`;
+                return `
+                    <tr>
+                        <td class="metric-name">${label}</td>
+                        <td>${row.model.toFixed(2)}%</td>
+                        <td>${row.bse.toFixed(2)}%</td>
+                        <td>${row.diff.toFixed(2)}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function init() {
+            loadHoldingsTable();
+            updateHoldingsSummary();
+            updateHoldingsTotalsRow();
+            // Load charts *after* the dashboard is visible
+            setTimeout(() => {
+                loadHoldingsPieChart();
+                loadSectorChart();
+            }, 100);
+            loadOverlapTable();
+            updateMetricsTable();
+            loadAnnualReturnsTable();
+            calculateMarketCapAllocationDynamic(window._weights || [], window._dataPool || {candidates:[],dataByNorm:{},sectorLabels:[]});
+        }
+
+        function loadHoldingsTable() {
+            const tbody = document.getElementById('holdingsTableBody');
+            tbody.innerHTML = clientHoldings.map(h => `
+                <tr>
+                    <td class="metric-name">${h.name}</td>
+                    <td>₹${h.allocatedCapital.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                    <td>${h.weight}%</td>
+                    <td>₹${h.marketValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                    <td style="color: ${h.gains >= 0 ? '#4ade80' : '#ff9f45'}">₹${h.gains.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                </tr>
+            `).join('');
+            updateHoldingsTotalsRow();
+        }
+
+
+        function updateHoldingsSummary() {
+            const el = document.getElementById('holdingsSummarySubtitle');
+            if (!el) return;
+
+            const totalValue = clientHoldings.reduce((s, h) => s + (isFinite(h.marketValue) ? h.marketValue : 0), 0);
+            const totalInvested = clientHoldings.reduce((s, h) => s + (isFinite(h.allocatedCapital) ? h.allocatedCapital : 0), 0);
+            const gains = totalValue - totalInvested;
+            const gainPct = totalInvested > 0 ? (gains / totalInvested) * 100 : null;
+
+            const fmtINR = (v) => '₹' + Math.round(v).toLocaleString('en-IN');
+
+            el.textContent = `Total Portfolio Value: ${fmtINR(totalValue)} | Total Invested: ${fmtINR(totalInvested)} | Gains: ${fmtINR(gains)} (${gainPct != null && isFinite(gainPct) ? gainPct.toFixed(2) : '0.00'}%)`;
+        }
+function updateHoldingsTotalsRow() {
+    const investedEl = document.getElementById('totalInvestedCell');
+    const weightEl = document.getElementById('totalWeightCell');
+    const currentEl = document.getElementById('totalCurrentValueCell');
+    const gainsEl = document.getElementById('totalGainsCell');
+    if (!investedEl || !weightEl || !currentEl || !gainsEl) return;
+
+    const totalCurrent = clientHoldings.reduce((s, h) => s + (isFinite(h.marketValue) ? h.marketValue : 0), 0);
+    const totalInvested = clientHoldings.reduce((s, h) => s + (isFinite(h.allocatedCapital) ? h.allocatedCapital : 0), 0);
+    const gains = totalCurrent - totalInvested;
+
+    const fmtINR = (v) => '₹' + Math.round(v).toLocaleString('en-IN');
+
+    investedEl.textContent = fmtINR(totalInvested);
+    weightEl.textContent = '100.00%';
+    currentEl.textContent = fmtINR(totalCurrent);
+
+    gainsEl.textContent = fmtINR(gains);
+    gainsEl.style.color = gains >= 0 ? '#4ade80' : '#ff9f45';
+}
+
+
+
+
+        
+        function loadHoldingsPieChart() {
+            const canvas = document.getElementById('holdingsPieChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const colors = ['#5775cd', '#7e99ff', '#a5bbff', '#ffcc33', '#ffb800', '#ff9f45', '#a78bfa', '#4ade80', '#86efac', '#c4b5fd'];
+
+            if (holdingsPieChartInstance) {
+                holdingsPieChartInstance.destroy();
+                holdingsPieChartInstance = null;
+            }
+
+            holdingsPieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: clientHoldings.map(h => h.name),
+                    datasets: [{
+                        data: clientHoldings.map(h => h.weight),
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {display: false},
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold' },
+                            formatter: (value, ctx) => {
+                                if (value > 5) return value + '%';
+                                return '';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+
+            // Create custom legend
+            const legendDiv = document.getElementById('pieChartLegend');
+            if(!legendDiv) return;
+            legendDiv.innerHTML = clientHoldings.map((h, idx) => 
+                `<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <div style="width: 12px; height: 12px; background: ${colors[idx % colors.length]}; border-radius: 2px; flex-shrink: 0;"></div>
+                    <span style="color: var(--color-text);">${h.name}: ${h.weight}%</span>
+                </div>`
+            ).join('');
+        }
+
+
+        
+        function loadOverlapTable() {
+            const table = document.getElementById('overlapTable');
+            if (!table) return;
+
+            const n = overlapMatrix.length;
+            let html = '<thead><tr><th>Fund</th>';
+            for (let i = 1; i <= n; i++) html += `<th style="text-align:center">${i}</th>`;
+            html += '</tr></thead><tbody>';
+
+            overlapMatrix.forEach((row, idx) => {
+                html += '<tr>';
+                row.forEach((cell, cellIdx) => {
+                    if (cellIdx === 0) {
+                        html += `<td class="metric-name">${idx + 1} ${cell}</td>`;
+                    } else {
+                        const isSelf = cell === "1.00";
+                        html += `<td style="text-align:center; ${isSelf ? 'background:#a5bbff; font-weight:700;' : ''}">${cell}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+
+        
+        function loadSectorChart() {
+            const canvas = document.getElementById('sectorChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const barColors = ['#5775cd', '#7e99ff', '#a5bbff', '#ffcc33', '#ffb800', '#ff9f45', '#a78bfa', '#4ade80', '#86efac', '#c4b5fd'];
+
+            if (sectorChartInstance) {
+                sectorChartInstance.destroy();
+                sectorChartInstance = null;
+            }
+
+            sectorChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sectorData.labels,
+                    datasets: [{
+                        label: 'Allocation (%)',
+                        data: sectorData.values,
+                        backgroundColor: barColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => value.toFixed(1) + '%',
+                            color: '#2d4691',
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Percentage (%)'
+                            },
+                            ticks: {
+                                callback: (value) => value + '%'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+
+        function updateMetricsTable() {
+            const tbody = document.getElementById('metricsTableBody');
+            const client = clientMetrics[currentPeriod];
+            const fincart = fincartMetrics[currentPeriod];
+            const benchmark = benchmarkMetrics[currentPeriod];
+
+            const fmt = (v, decimals = 2, suffix = '') => {
+                if (v === null || v === undefined || isNaN(v)) return '-';
+                return v.toFixed(decimals) + suffix;
+            };
+
+            const metrics = [
+                { id: 'CAGR', key: 'cagr', suffix: '%' },
+                { id: 'Sharpe Ratio', key: 'sharpe', suffix: '' },
+                { id: 'Volatility', key: 'vol', suffix: '%' },
+                { id: 'Max Drawdown', key: 'maxDD', suffix: '%' },
+                { id: 'Alpha', key: 'alpha', suffix: '%' },
+                { id: 'Beta', key: 'beta', suffix: '' },
+                { id: 'Sortino Ratio', key: 'sortino', suffix: '' }
+            ];
+
+            tbody.innerHTML = metrics.map(m => {
+                const def = metricDefinitions[m.id] || '';
+                const nameCell = `<div class="tooltip">${m.id}<span class="tooltiptext">${def}</span></div>`;
+                return `
+                    <tr>
+                        <td class="metric-name">${nameCell}</td>
+                        <td>${fmt(client[m.key], 2, m.suffix)}</td>
+                        <td>${fmt(fincart[m.key], 2, m.suffix)}</td>
+                        <td>${fmt(benchmark[m.key], 2, m.suffix)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === period);
+            });
+            updateMetricsTable();
+        }
+
+        function toggleDropdown(type) {
+            const content = document.getElementById(type + 'Content');
+            const icon = document.getElementById(type + 'Icon');
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+        }
+
+        
+        function calculateMarketCapAllocationDynamic(weights, dataPool) {
+            let totalLargeCap = 0;
+            let totalMidCap = 0;
+            let totalSmallCap = 0;
+
+            const contrib = [];
+
+            const ws = Array.isArray(weights) ? weights : [];
+            for (const w of ws) {
+                const weight = cleanNumber(w && w.weight);
+                if (!isFinite(weight) || weight <= 0) continue;
+
+                const fundData = lookupDataItem(w.name, dataPool);
+                if (!fundData) continue;
+
+                const largeCap = cleanNumber(fundData.capL ?? fundData.largeCap ?? fundData.largeCapNet ?? 0) || 0;
+                const midCap   = cleanNumber(fundData.capM ?? fundData.midCap ?? fundData.midCapNet ?? 0) || 0;
+                const smallCap = cleanNumber(fundData.capS ?? fundData.smallCap ?? fundData.smallCapNet ?? 0) || 0;
+
+                const largeContrib = (largeCap * weight) / 100;
+                const midContrib   = (midCap * weight) / 100;
+                const smallContrib = (smallCap * weight) / 100;
+
+                totalLargeCap += largeContrib;
+                totalMidCap += midContrib;
+                totalSmallCap += smallContrib;
+
+                contrib.push({
+                    name: w.name,
+                    weight,
+                    largeCap,
+                    midCap,
+                    smallCap,
+                    largeContrib,
+                    midContrib,
+                    smallContrib
+                });
+            }
+
+            // Update values in DOM (preferred: ids). Fallback: rebuild HTML.
+            const elL = document.getElementById('capLarge');
+            const elM = document.getElementById('capMid');
+            const elS = document.getElementById('capSmall');
+
+            if (elL && elM && elS) {
+                elL.textContent = totalLargeCap.toFixed(2);
+                elM.textContent = totalMidCap.toFixed(2);
+                elS.textContent = totalSmallCap.toFixed(2);
+            } else {
+                const capEl = document.querySelector('.cap-distribution');
+                if (capEl) {
+                    capEl.innerHTML = `
+                        <div class="cap-item">
+                            <div class="cap-label">Large Cap</div>
+                            <div class="cap-value">${totalLargeCap.toFixed(2)}</div>
+                        </div>
+                        <div class="cap-item">
+                            <div class="cap-label">Mid Cap</div>
+                            <div class="cap-value">${totalMidCap.toFixed(2)}</div>
+                        </div>
+                        <div class="cap-item">
+                            <div class="cap-label">Small Cap</div>
+                            <div class="cap-value">${totalSmallCap.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Debug / audit table
+            const dbg = document.getElementById('marketCapDebug');
+            if (dbg) {
+                const top = contrib.sort((a,b) => b.largeContrib - a.largeContrib).slice(0, 12);
+                dbg.innerHTML = `
+                    <details>
+                      <summary style="cursor:pointer; font-size: 12px; color:#5775cd; margin-top:10px;">Show market-cap calculation details</summary>
+                      <div style="overflow:auto; margin-top:8px;">
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                          <thead>
+                            <tr>
+                              <th style="text-align:left; border-bottom:1px solid #e5e7eb; padding:6px;">Fund</th>
+                              <th style="text-align:right; border-bottom:1px solid #e5e7eb; padding:6px;">Weight%</th>
+                              <th style="text-align:right; border-bottom:1px solid #e5e7eb; padding:6px;">Large%</th>
+                              <th style="text-align:right; border-bottom:1px solid #e5e7eb; padding:6px;">Mid%</th>
+                              <th style="text-align:right; border-bottom:1px solid #e5e7eb; padding:6px;">Small%</th>
+                              <th style="text-align:right; border-bottom:1px solid #e5e7eb; padding:6px;">L contrib%</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            ${top.map(r => `
+                              <tr>
+                                <td style="padding:6px; border-bottom:1px solid #f1f5f9;">${escapeHtml(r.name)}</td>
+                                <td style="padding:6px; text-align:right; border-bottom:1px solid #f1f5f9;">${r.weight.toFixed(2)}</td>
+                                <td style="padding:6px; text-align:right; border-bottom:1px solid #f1f5f9;">${r.largeCap.toFixed(2)}</td>
+                                <td style="padding:6px; text-align:right; border-bottom:1px solid #f1f5f9;">${r.midCap.toFixed(2)}</td>
+                                <td style="padding:6px; text-align:right; border-bottom:1px solid #f1f5f9;">${r.smallCap.toFixed(2)}</td>
+                                <td style="padding:6px; text-align:right; border-bottom:1px solid #f1f5f9;">${r.largeContrib.toFixed(2)}</td>
+                              </tr>
+                            `).join('')}
+                          </tbody>
+                        </table>
+                        <div style="margin-top:8px; font-size:12px; color:#64748b;">
+                          Total (Large, Mid, Small) = Σ(weight×cap%)/100 → 
+                          <b>${totalLargeCap.toFixed(2)}%</b>, <b>${totalMidCap.toFixed(2)}%</b>, <b>${totalSmallCap.toFixed(2)}%</b>
+                        </div>
+                      </div>
+                    </details>
+                `;
+            }
+        }
+
+</script>
+</body>
+</html>
